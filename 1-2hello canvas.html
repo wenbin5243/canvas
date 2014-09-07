@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>canvas</title>
+  <style type="text/css">
+  	canvas{
+  		width: 600px;
+  		height: 300px;
+  		border: 1px solid #ccc;
+  	}
+  </style>
+</head>
+<body>
+<canvas id="canvas">canvas not supported</canvas>
+<script type="text/javascript">
+	var canvas=document.getElementById("canvas");
+	var context=canvas.getContext("2d");
+	context.font="38pt Arial";
+	context.fillStyle="cornflowerblue";
+	context.strokeStyle="blue";
+	context.fillText("Hello Canvas",canvas.width/2-150,canvas.height/2+15);
+	context.strokeText("Hello Canvas",canvas.width/2-150,canvas.height/2+15);
+</script>
+</body>
+</html>
