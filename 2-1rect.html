@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>canvas</title>
+
+</head>
+<body>
+<canvas id="canvas" width="600" height="600">canvas not supported</canvas>
+<script type="text/javascript">
+	var canvas=document.getElementById("canvas");
+	var context=canvas.getContext("2d");
+	context.lineJoin="round";
+	context.lineWidth=30;
+	context.font="24px Helvetica";
+	context.fillText("click anywhere to erase",175,40);
+	context.strokeRect(75,100,200,200);
+	context.fillRect(325,100,200,200);
+	context.canvas.onmousedown=function(e){
+		context.clearRect(0,0,canvas.width,canvas.height);
+	}
+</script>
+</body>
+</html>
