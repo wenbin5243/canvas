@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>canvas</title>
+
+  </head>
+
+   <body>
+      <canvas id='canvas' width='600' height='400'>
+         Canvas not supported
+      </canvas>
+<script type="text/javascript">
+	var canvas=document.getElementById("canvas"),
+		context=canvas.getContext("2d");
+		
+	var moveToFunction=CanvasRenderingContext2D.prototype.moveTo;
+	CanvasRenderingContext2D.prototype.lastMoveTolocation={};
+	CanvasRenderingContext2D.prototype.moveTo=function(x,y){
+		moveToFunction.apply(context,[x,y]);
+		this.lastMoveTolocation.x=x;
+		this.lastMoveTolocation.y=y;
+	};
+	CanvasRenderingContext2D.prototype.dashedLineTo=function(x,y,dashLength){
+		dashLength=dashLength===undefined?5:dashLength;
+		var startX=this.lastMoveTolocation.x;
+		var startY=this.lastMoveTolocation.y;
+		var deltaX=x-startX;
+		var deltaY=y-startY;
+		var numDashes=Math.floor(Math.sqrt(deltaX*deltaX+deltaY*deltaY)/dashLength);
+		for(var i=0;i<numDashes;++i){
+			this[i%2===0?"moveTo":"lineTo"](startX+(deltaX/numDashes)*i,startY+(deltaY/numDashes)*i);
+		}
+		this.moveTo(x,y);
+	}
+	context.lineWidth=3;
+	context.strokeStyle="blue";
+	context.moveTo(20,20);
+	context.dashedLineTo(context.canvas.width-20,20);
+	context.dashedLineTo(context.canvas.width-20,context.canvas.height-20);
+	context.dashedLineTo(20,context.canvas.height-20);
+	context.dashedLineTo(20,20);
+	context.dashedLineTo(context.canvas.width-20,context.canvas.height-20);
+	context.stroke();
+</script>
+</body>
+</html>
