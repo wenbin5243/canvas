@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>canvas</title>
+<style>
+      body {
+         background: #eeeeee;
+      }
+
+      #controls {
+         position: absolute;
+         left: 25px;
+         top: 25px;
+      }
+      
+      #canvas {
+         background: #ffffff;
+         cursor: pointer;
+         margin-left: 10px;
+         margin-top: 10px;
+         -webkit-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+         -moz-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+         box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+      }
+    </style>
+  </head>
+
+   <body>
+      <canvas id='canvas' width='850' height='600'>
+         Canvas not supported
+      </canvas>
+
+	 <div id='controls'>
+       Stroke color: <select id='strokeStyleSelect'>
+                        <option value='red'>red</option>
+                        <option value='green'>green</option>
+                        <option value='blue'>blue</option>
+                        <option value='orange'>orange</option>
+                        <option value='cornflowerblue' selected>cornflowerblue</option>
+                        <option value='goldenrod'>goldenrod</option>
+                        <option value='navy'>navy</option>
+                        <option value='purple'>purple</option>
+                     </select>
+
+       Fill color: <select id='fillStyleSelect'>
+                        <option value='rgba(255,0,0,0.5)'>semi-transparent red</option>
+                        <option value='green'>green</option>
+                        <option value='rgba(0,0,255,0.5)'>semi-transparent blue</option>
+                        <option value='orange'>orange</option>
+                        <option value='rgba(100,140,230,0.5)'>semi-transparent cornflowerblue</option>
+                        <option value='goldenrod' selected>goldenrod</option>
+                        <option value='navy'>navy</option>
+                        <option value='purple'>purple</option>
+                     </select>
+
+       Sides: <select id='sidesSelect'>
+                        <option value=4 select>4</option>
+                        <option value=6>6</option>
+                        <option value=8>8</option>
+                        <option value=10>10</option>
+                        <option value=12>12</option>
+                        <option value=20>20</option>
+                     </select>
+
+       Start angle: <select id='startAngleSelect'>
+                        <option value=0 select>0</option>
+                        <option value=22.5>22.5</option>
+                        <option value=45>45</option>
+                        <option value=67.5>67.5</option>
+                        <option value=90>90</option>
+                     </select>
+
+       Fill <input id='fillCheckbox' type='checkbox' checked/>
+       <input id='eraseAllButton' type='button' value='Erase all'/>
+    </div>
+<script type="text/javascript">
+	var canvas=document.getElementById("canvas"),
+		context=canvas.getContext("2d"),
+		sidesSelect=document.getElementById("sidesSelect"),
+		startAngleSelect=document.getElementById("startAngleSelect"),
+
+		fillCheckbox=document.getElementById("fillCheckbox"),
+		mousedown={},
+		rubberbandRect={},
+		Point=function(x,y){
+			this.x=x;
+			this.y=y;
+		}
+	function getPolygonPoints(centerX,centerY,sides,startAngle){
+		var points=[],
+		angle=startAngle||0;
+		for(var i=0;i<sides;++i){
+			points.push(new Point(centerX+radius*Math.sin(angle),centerY-radius*Math.cos(angle)));
+			angle+=2*Math.PI/sides;
+		}
+		return points;
+	}
+	function createPolygonPath(centerX,centerY,radius,radius,sides,startAngle){
+		var points=getPolygonPoints(centerX,centerY,radius,sides,startAngle);
+		context.beginPath();
+		context.moveTo(points[0].x,points[0].y);
+		for(var i=1;i<sides;++i){
+			context.lineTo(points[i].x,points[i].y);
+		}
+		context.closePath();
+	}
+	function drawRubberbandShape(loc,sides,startAngle){
+		createPolygonPath(mousedown.x,mousedown.y,rubberbandRect.width,parseInt(sidesSelect.value),(Math.PI/180)*parseInt(startAngleSelect.value));
+		context.stroke();
+		if(fillCheckbox.checked){
+			context.fill();
+		}
+	}
+
+</script>
+</body>
+</html>
