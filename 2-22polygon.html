@@ -218,7 +218,14 @@ Polygon.prototype = {
     }
   }
   function drawRubberbandShape(loc,sides,starAngle){
-    var polygon=new Polygon(mousedown.x,mousedown.y,rubberbandRect.width,parseInt(sidesSelect.value),(Math.PI/180)*parseInt(strokeStyleSelect.value),context.strokeStyle,context.fillStyle,fillCheckbox.checked);
+    var polygon=new Polygon(mousedown.x,
+                            mousedown.y,
+                            rubberbandRect.width,
+                            parseInt(sidesSelect.value),
+                            (Math.PI/180)*parseInt(strokeStyleSelect.value),
+                            context.strokeStyle,
+                            context.fillStyle,
+                            fillCheckbox.checked);
     drawPolygon(polygon);
 
     if(!dragging){
