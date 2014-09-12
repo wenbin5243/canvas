@@ -179,7 +179,7 @@
     if(loc.y>mousedown.y){
       rubberbandRect.top=mousedown.y;
     }else{
-      rubberbandRect=loc.y;
+      rubberbandRect.top=loc.y;
     }
   }
 
@@ -313,7 +313,7 @@
       draggingPoint=cursorInControlPoint(loc);
 
       if(!draggingPoint){
-        draggingPoint=cursorInControlPoint(loc);
+        draggingPoint=cursorInEndPoint(loc);
       }
     }
   };

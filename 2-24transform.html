@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>canvas</title>
+
+  </head>
+
+   <body>
+      <canvas id='canvas' width='605' height='400'>
+         Canvas not supported
+      </canvas>
+
+   
+<script type="text/javascript">
+  var canvas=document.getElementById("canvas"),
+      context=canvas.getContext("2d"),
+      RECTANGLE_WIDTH=100,
+      RECTANGLE_HEIGHT=100;
+
+  context.strokeRect(canvas.width/2-RECTANGLE_WIDTH/2,
+                     canvas.height/2-RECTANGLE_HEIGHT/2,
+                     RECTANGLE_WIDTH,RECTANGLE_HEIGHT);
+
+
+</script>
+</body>
+</html>
