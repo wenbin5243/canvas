@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Stroking and Filling Text</title>
+      <style>
+        body {
+           background: #eeeeee;
+        }
+        
+        #canvas {
+            margin-left: 10px;
+              -webkit-box-shadow: rgba(0, 0, 0, 0.2) 2px 2px 4px;
+              -moz-box-shadow: rgba(0, 0, 0, 0.2) 2px 2px 4px;
+              box-shadow: rgba(0, 0, 0, 0.2) 2px 2px 4px;
+              border: 1px solid cornflowerblue;
+              background: #ffffff;
+        }
+
+        #controls {
+           margin: 10px;
+        }
+      </style>
+   </head>
+
+   <body>
+
+      
+      <canvas id='canvas' width='900' height='800'>
+         Canvas not supported
+      </canvas>
+   
+<script type="text/javascript">
+var canvas=document.getElementById("canvas"),
+    context=canvas.getContext("2d"),
+    LEFT_COLUMN_FONTS=[
+      "2em palatino",
+      "lighter 2em palatino",
+      "oblique small-caps 24px palatino",
+      "xx-large palatino",
+    ],
+    RIGHT_COLUMN_FONTS=[
+      "oblique 1.5em lucida console",
+      "italic 28px monaco",
+      "36px century",
+      "28px impact",
+    ],
+
+    LEFT_COLUMN_X=25,
+    RIGHT_COLUMN_X=425,
+    DELTA_Y=50,
+    TOP_Y=50,
+    y=0;
+
+context.fillStyle="blue";
+
+LEFT_COLUMN_FONTS.forEach(function(font){
+  context.font=font;
+  context.fillText(font,LEFT_COLUMN_X,y+=DELTA_Y);
+});
+
+y=0;
+
+RIGHT_COLUMN_FONTS.forEach(function(font){
+  context.font=font;
+  context.fillText(font,RIGHT_COLUMN_X,y+=DELTA_Y);
+})
+      
+
+</script>
+</body>
+</html>

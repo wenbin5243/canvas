@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Stroking and Filling Text</title>
+      <style>
+        body {
+           background: #eeeeee;
+        }
+        
+        #canvas {
+            margin-left: 10px;
+              -webkit-box-shadow: rgba(0, 0, 0, 0.2) 2px 2px 4px;
+              -moz-box-shadow: rgba(0, 0, 0, 0.2) 2px 2px 4px;
+              box-shadow: rgba(0, 0, 0, 0.2) 2px 2px 4px;
+              border: 1px solid cornflowerblue;
+              background: #ffffff;
+        }
+
+        #controls {
+           margin: 10px;
+        }
+      </style>
+   </head>
+
+   <body>
+
+      
+      <canvas id='canvas' width='900' height='800'>
+         Canvas not supported
+      </canvas>
+   
+<script type="text/javascript">
+var canvas=document.getElementById("canvas"),
+    context=canvas.getContext("2d"),
+    fontHeight=24,
+    alignValues=["start","center","end"],
+    baselineValues=["top","middle","bottom","alphabetic","ideographic","hanging"],
+    x,y;
+
+function drawGrid(color,stepx,stepy){
+  context.strokeStyle=color;
+  context.lineWidth=0.5;
+  for(var i=stepx+0.5;i<context.canvas.width;i+=stepx){
+    context.beginPath();
+    context.moveTo(i,0);
+    context.lineTo(i,context.canvas.height);
+    context.stroke();
+  }
+  for(var i=stepy+0.5;i<context.canvas.height;i+=stepy){
+    context.beginPath();
+    context.moveTo(0,i);
+    context.lineTo(context.canvas.width,i);
+    context.stroke();
+  }
+}
+
+function drawTextMarker(){
+  context.fillStyle="yellow";
+  context.fillRect(x,y,7,7);
+  context.strokeRect(x,y,7,7);
+}
+
+function drawText(text,textAlign,textBaseline){
+  if(textAlign){
+    context.textAlign=textAlign;
+  }
+  if(textBaseline){
+    context.textBaseline=textBaseline;
+  }
+  context.fillStyle="cornflowerblue";
+  context.fillText(text,x,y);
+}
+
+function drawTextLine(){
+  context.strokeStyle="gray";
+  context.beginPath();
+  context.moveTo(x,y);
+  context.lineTo(x+738,y);
+  context.stroke();
+}
+context.font="oblique normal bold 24px palatino";
+
+drawGrid("lightgray",10,10);
+
+for(var align=0;align<alignValues.length;++align){
+  for(var baseline=0;baseline<baselineValues.length;++baseline){
+    x=20+align*fontHeight*15;
+    y=20+baseline*fontHeight*3;
+
+    drawText(alignValues[align]+'/'+baselineValues[baseline],alignValues[align],baselineValues[baseline]);
+    drawTextMarker();
+    drawTextLine();
+  }
+}   
+
+</script>
+</body>
+</html>
