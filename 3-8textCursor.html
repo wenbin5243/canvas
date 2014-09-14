@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>A Simple Text Cursor</title>
+
+    <style>
+      body {
+         background: #eeeeee;
+      }
+
+      #fontSelectDiv {
+         position: absolute;
+         left: 20px;
+         top: 20px;
+      }
+
+      #canvas {
+         background: #ffffff;
+         cursor: text;
+         margin-left: 10px;
+         margin-top: 10px;
+         -webkit-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+         -moz-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+         box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+           border: 1px solid rgba(0,0,0,0.2);
+      }
+    </style>
+  </head>
+
+   <body>
+      <canvas id='canvas' width='780' height='440'>
+         Canvas not supported
+      </canvas>
+
+      <div id='fontSelectDiv'>
+         Font: <select id='fontSelect'>
+                  <option value='Arial'>Arial</option>
+                  <option value='Comic Sans' selected>Comic Sans</option>
+                  <option value='Courier'>Courier</option>
+                  <option value='Helvetica'>Helvetica</option>
+                  <option value='Palatino'>Palatino</option>
+               </select>
+
+         Size: <select id='sizeSelect'>
+                  <option value='32'>32 px</option>
+                  <option value='48' selected>48 px</option>
+                  <option value='64'>64 px</option>
+                  <option value='128'>128 px</option>
+                  <option value='256'>256 px</option>
+               </select>
+
+       Fill color: <select id='fillStyleSelect'>
+                  <option value='rgba(255,0,0,0.5)'>semi-transparent red</option>
+                  <option value='green'>green</option>
+                  <option value='rgba(0,0,255,0.5)' selected>semi-transparent blue</option>
+                  <option value='orange'>orange</option>
+                  <option value='rgba(100,140,230,0.5)'>semi-transparent cornflowerblue</option>
+                  <option value='rgba(218,165,32,0.5)'>semi-transparent goldenrod</option>
+                  <option value='navy'>navy</option>
+                  <option value='purple'>purple</option>
+              </select>
+      </div>
+<script type="text/javascript">
+	TextCursor=function(width,fillStyle){
+		this.fillStyle=fillStyle||"rgba(0,0,0,0.5)";
+		this.width=width||2;
+		this.left=0;
+		this.top=0;
+	};
+	TextCursor.prototype={
+		getHeight:function(context){
+			var h=context.measureText("w").width;
+			return h+h/5;
+		},
+		createPath:function(context){
+			context.beginPath();
+			context.rect(this.left,this.top,this.width,this.getHeight(context));
+		},
+		draw:function(context,left,bottom){
+			context.save();
+			this.left=left;
+			this.top=bottom-this.getHeight(context);
+
+			this.createPath(context);
+
+			context.fillStyle=this.fillStyle;
+			context.fill();
+
+			context.restore();
+		},
+		erase:function(context,imageData){
+			context.putImageData(imageData,0,0,this.left,this.top,this.width,this.getHeight(context));
+		}
+	};
+
+var canvas = document.getElementById('canvas'),
+    context = canvas.getContext('2d'),
+
+    fontSelect = document.getElementById('fontSelect'),
+    sizeSelect = document.getElementById('sizeSelect'),
+    fillStyleSelect = document.getElementById('fillStyleSelect'),
+    cursorWidthStyleSelect = document.getElementById('cursorWidthStyleSelect'),
+
+    GRID_STROKE_STYLE = 'lightgray',
+    GRID_HORIZONTAL_SPACING = 10,
+    GRID_VERTICAL_SPACING = 10,
+
+    TEXT_CURSOR_LINE_WIDTH = 2,
+    TEXT_CURSOR_WIDTH = 4,
+    cursor = new TextCursor();
+
+// General-purpose functions.....................................
+
+function drawBackground() {
+   var STEP_Y = 12,
+       i = context.canvas.height;
+   
+   context.strokeStyle = 'rgba(0,0,200,0.225)';
+   context.lineWidth = 0.5;
+
+   context.save();
+   context.restore();
+
+   while(i > STEP_Y*4) {
+      context.beginPath();
+      context.moveTo(0, i);
+      context.lineTo(context.canvas.width, i);
+      context.stroke();
+      i -= STEP_Y;
+   }
+
+   context.save();
+
+   context.strokeStyle = 'rgba(100,0,0,0.3)';
+   context.lineWidth = 1;
+
+   context.beginPath();
+
+   context.moveTo(35,0);
+   context.lineTo(35,context.canvas.height);
+   context.stroke();
+
+   context.restore();
+}
+
+function windowToCanvas(e) {
+   var x = e.x || e.clientX,
+       y = e.y || e.clientY,
+       bbox = canvas.getBoundingClientRect();
+
+   return { x: x - bbox.left * (canvas.width  / bbox.width),
+            y: y - bbox.top  * (canvas.height / bbox.height)
+          };
+}
+
+// Drawing surface...............................................
+
+function saveDrawingSurface() {
+   drawingSurfaceImageData = context.getImageData(0, 0,
+                             canvas.width,
+                             canvas.height);
+}
+
+// Text..........................................................
+
+function setFont() {
+   context.font = sizeSelect.value + 'px ' + fontSelect.value;
+}
+
+function moveCursor(loc) {
+   cursor.erase(context, drawingSurfaceImageData);
+   cursor.draw(context, loc.x, loc.y);
+}
+
+// Event handlers................................................
+
+canvas.onmousedown = function (e) {
+   var loc = windowToCanvas(e);
+   moveCursor(loc);
+};
+
+fillStyleSelect.onchange = function (e) {
+   cursor.fillStyle = fillStyleSelect.value;
+}
+
+// Initialization................................................
+
+fontSelect.onchange = setFont;
+sizeSelect.onchange = setFont;
+
+cursor.width = 2;
+
+context.lineWidth = 2.0;
+setFont();
+
+drawBackground();
+saveDrawingSurface();
+
+
+
+	
+	
+</script>
+</body>
+</html>
