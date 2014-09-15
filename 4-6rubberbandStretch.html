@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>A Simple Text Cursor</title>
+
+    <style>
+      body {
+            background: rgba(100, 145, 250, 0.3);
+         }
+
+         #scaleSlider {
+            vertical-align: 10px;
+            width: 100px;
+            margin-left: 90px;
+         }
+
+         #canvas {
+            margin: 10px 20px 0px 20px;
+            border: thin solid #aaaaaa;
+            cursor: crosshair;
+         }
+
+         #controls {
+            margin-left: 15px;
+            padding: 0;
+         }
+
+         #scaleOutput {
+            position: absolute;
+            width: 60px;
+            height: 30px;
+            margin-left: 10px;
+            vertical-align: center;
+            text-align: center;
+            color: blue;
+            font: 18px Arial;
+            text-shadow: 2px 2px 4px rgba(100, 140, 250, 0.8);
+         }
+    </style>
+  </head>
+
+   <body>
+      <div id='controls'>
+        <output id='scaleOutput'>1.0</output>
+        <input id='scaleSlider' type='range'
+               min='1' max='3.0' step='0.01' value='1.0'/> 
+     </div>
+      <canvas id='canvas' width='800' height='520'>
+         Canvas not supported
+      </canvas>
+        
+               
+<script type="text/javascript">
+
+var canvas=document.getElementById("canvas"),
+    context=canvas.getContext("2d"),
+
+    resetButton=document.getElementById("resetButton"),
+    image=new Image(),
+    imageData,
+    rubberbandRectanble={},
+    dragging=false;
+
+function windowToCanvas(canvas,x,y){
+  var canvasRectangle=canvas.getBoundingClientRect();
+  return{
+    x:x-canvasRectangle.left,
+    y:y-canvasRectangle.top
+  };
+}
+function captureRubberbandPixels(){
+  imageData=context.getImageData(rubberbandRectanble.left,
+                                  rubberbandRectanble.top,
+                                  rubberbandRectanble.width,
+                                  rubberbandRectanble.height);
+}
+
+function restoreRubberbandPixels(){
+  context.putImageData(imageData,rubberbandRectanble.left,rubberbandRectanble.top);
+}
+
+function drawRubberband(){
+  context.strokeRect(rubberbandRectanble.left+context.lineWidth,
+                      rubberbandRectanble.top+context.lineWidth,
+                      rubberbandRectanble.width-2*context.lineWidth,
+                      rubberbandRectanble.height-2*context.lineWidth);
+}
+function setRubberbandRectangle(x,y){
+  rubberbandRectanble.left=Math.min(x,mousedown.x);
+  rubberbandRectanble.top=Math.min(y,mousedown.y);
+  rubberbandRectanble.width=Math.abs(x-mousedown.x);
+  rubberbandRectanble.height=Math.abs(y-mousedown.y);
+}
+
+function updateRubberband(){
+  captureRubberbandPixels();
+  drawRubberband();
+}
+
+function rubberbandStart(x,y){
+  mousedown.x=x;
+  mousedown.y=y;
+
+  rubberbandRectanble.left=mousedown.x;
+  rubberbandRectanble.top=mousedown.y;
+
+  dragging=true;
+}
+
+function rubberbandStretch(x,y){
+  if(rubberbandRectangle.width>2*context.lineWidth&&rubberbandRectangle.height>2*context.lineWidth){
+    if(imageData!==undefined){
+      restoreRubberbandPixels();
+    }
+  }
+  setRubberbandRectangle(x,y);
+
+  if(rubberbandRectanble.width>2*context.lineWidth&&rubberbandRectanble.height>2*context.lineWidth){
+    updateRubberband();
+  }
+}
+
+function rubberbandEnd(){
+  context.drawImage(canvas,rubberbandRectanble.left+context.lineWidth*2,
+                    rubberbandRectanble.top+context.lineWidth*2,
+                    rubberbandRectanble.width-4*context.lineWidth,
+                    rubberbandRectanble.height-4*context.lineWidth,
+                    0,0,canvas.width,canvas.height);
+  dragging=false;
+  imageData=undefined;
+}
+
+canvas.onmousedown=function(e){
+  var loc=windowToCanvas(canvas,e.clientX,e.clientY);
+  e.preventDefault();
+  rubberbandRectanble(loc.x,loc.y);
+};
+canvas.onmousemove=function(e){
+  var loc;
+  if(dragging){
+    loc=windowToCanvas(canvas,e.clientX,e.clientY);
+    rubberbandStretch(loc.x,loc.y);
+  }
+};
+
+canvas.onmouseup=function(e){
+  rubberbandEnd();
+}
+
+image.src
+	
+</script>
+</body>
+</html>

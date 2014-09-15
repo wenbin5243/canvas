@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>A Simple Text Cursor</title>
+
+    <style>
+      body {
+         background: #eeeeee;
+      }
+
+      #fontSelectDiv {
+         position: absolute;
+         left: 20px;
+         top: 20px;
+      }
+
+      #canvas {
+         background: #ffffff;
+         cursor: text;
+         margin-left: 10px;
+         margin-top: 10px;
+         -webkit-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+         -moz-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+         box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+           border: 1px solid rgba(0,0,0,0.2);
+      }
+    </style>
+  </head>
+
+   <body>
+      <div>
+        <input type="checkbox" id="scaleCheckbox">
+        <label for="scaleCheckbox">scale image</label>
+      <div>
+      <canvas id='canvas' width='780' height='800'>
+         Canvas not supported
+      </canvas>
+        
+               
+<script type="text/javascript">
+
+var canvas=document.getElementById("canvas"),
+    context=canvas.getContext("2d"),
+    scaleCheckbox=document.getElementById("scaleCheckbox"),
+    image=new Image();
+
+image.src="img/curved-road.png";
+image.onload=function(e){
+  context.drawImage(image,0,0);
+}	
+
+function drawImage(){
+  context.clearRect(0,0,canvas.width,canvas.height);
+  if(scaleCheckbox.checked){
+    context.drawImage(image,0,0,canvas.width,canvas.height);
+  }else{
+    context.drawImage(image,0,0);
+  }
+}
+scaleCheckbox.onchange=function(e){
+  drawImage();
+}
+	
+</script>
+</body>
+</html>
