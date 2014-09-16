@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>A Simple Text Cursor</title>
+
+    <style>
+      body {
+            background: rgba(100, 145, 250, 0.3);
+         }
+
+         #scaleSlider {
+            vertical-align: 10px;
+            width: 100px;
+            margin-left: 90px;
+         }
+
+         #canvas {
+            margin: 10px 20px 0px 20px;
+            border: thin solid #aaaaaa;
+            cursor: crosshair;
+         }
+
+         #controls {
+            margin-left: 15px;
+            padding: 0;
+         }
+
+         #scaleOutput {
+            position: absolute;
+            width: 60px;
+            height: 30px;
+            margin-left: 10px;
+            vertical-align: center;
+            text-align: center;
+            color: blue;
+            font: 18px Arial;
+            text-shadow: 2px 2px 4px rgba(100, 140, 250, 0.8);
+         }
+    </style>
+  </head>
+
+   <body>
+      <div id='controls'>
+         <input type='button' id='sunglassButton' value='filter'/>
+      </div>
+      <canvas id='canvas' width='800' height='520'>
+         Canvas not supported
+      </canvas>
+        
+               
+<script type="text/javascript">
+
+var canvas=document.getElementById("canvas"),
+    context=canvas.getContext("2d"),
+
+    image=new Image(),
+    sunglassButton=document.getElementById("sunglassButton"),
+    sunglassesOn=false,
+    sunglassFilter=new Worker("sunglassFilter.js");
+
+function putSunglassesOn(){
+  sunglassFilter.postMessage(
+    context.getImageData(0,0,canvas.width,canvas.height)
+  );
+  sunglassFilter.onmessage=function(event){
+    context.putImageData(event.data,0,0);
+  };
+}
+
+function drawOriginalImage(){
+  context.drawImage(image,0,0,
+                    image.width,image.height,0,0,
+                    canvas.width,canvas.height);
+}
+sunglassButton.onclick=function(){
+  if(sunglassesOn){
+    sunglassButton.value="Sunglasses";
+    drawOriginalImage();
+    sunglassesOn=false;
+  }else{
+    sunglassButton.value="original picture";
+    putSunglassesOn();
+    sunglassesOn=true;
+  }
+}
+image.src="img/curved-road.png";
+image.onload=function(){
+  drawOriginalImage();
+}
+</script>
+</body>
+</html>

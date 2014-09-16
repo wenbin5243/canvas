@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>A Simple Text Cursor</title>
+
+    <style>
+      body {
+            background: rgba(100, 145, 250, 0.3);
+         }
+
+         #scaleSlider {
+            vertical-align: 10px;
+            width: 100px;
+            margin-left: 90px;
+         }
+
+         #canvas {
+            margin: 10px 20px 0px 20px;
+            border: thin solid #aaaaaa;
+            cursor: crosshair;
+         }
+
+         #controls {
+            margin-left: 15px;
+            padding: 0;
+         }
+
+         #scaleOutput {
+            position: absolute;
+            width: 60px;
+            height: 30px;
+            margin-left: 10px;
+            vertical-align: center;
+            text-align: center;
+            color: blue;
+            font: 18px Arial;
+            text-shadow: 2px 2px 4px rgba(100, 140, 250, 0.8);
+         }
+    </style>
+  </head>
+
+   <body>
+      <div id='controls'>
+         <input type='button' id='fadeButton' value='fade'/>
+      </div>
+      <canvas id='canvas' width='800' height='520'>
+         Canvas not supported
+      </canvas>
+        
+               
+<script type="text/javascript">
+
+var canvas=document.getElementById("canvas"),
+    context=canvas.getContext("2d"),
+    offscreenCanvas=document.createElement("canvas"),
+    offscreenContext=offscreenCanvas.getContext("2d"),
+
+    image=new Image(),
+    fadeButton=document.getElementById("fadeButton"),
+    imagedata,
+    imagedataOffscreen,
+    interval=null;
+
+function increaseTransparency(imagedata,steps){
+  var alpha,currentAlpha,step,length=imagedata.data.length;
+  for(var i=3;i<length;i+=4){
+    alpha=imagedataOffscreen.data[i];
+    if(alpha>0){
+      currentAlpha=imagedata.data[i];
+      step=Math.ceil(alpha/steps);
+      if(currentAlpha+step<=alpha){
+        imagedata.data[i]+=step;
+      }else{
+        imagedata.data[i]=alpha;
+      }
+    }
+  }
+}
+
+function fadeIn(context,imagedata,steps,millisecondsPerstep){
+  var frame=0;
+  for(var i=3;i<imagedata.data.length;i+=4){
+    imagedata.data[i]=0;
+  }
+  interval=setInterval(function(){
+    frame++;
+    if(frame>steps){
+      clearInterval(interval);
+    }else{
+      increaseTransparency(imagedata,steps);
+      context.putImageData(imagedata,0,0);
+    }
+  },millisecondsPerstep);
+}
+function animationComplete(){
+  setTimeot(function(){
+    context.drawImage(image,0,0,canvas.width,canvas.height);
+  },1000)
+}
+fadeButton.onclick=function(){
+  imagedataOffscreen=offscreenContext.getImageData(0,0,canvas.width,canvas.height);
+  fadeIn(context,
+          offscreenContext.getImageData(0,0,canvas.width,canvas.height),
+          50,1000/60);
+}
+image.src="img/curved-road.png";
+image.onload=function(){
+  offscreenCanvas.width=canvas.width;
+  offscreenCanvas.height=canvas.height;
+  offscreenContext.drawImage(image,0,0);
+}
+</script>
+</body>
+</html>
