@@ -119,6 +119,83 @@ AnimationTimer.makeLinear=function(){
     return percentComplete;
   };
 };
+
+var linear=AnimationTimer.makeLinear(),
+    easeIn=AnimationTimer.makeEaseIn(1),
+    easeOut=AnimationTimer.makeEaseOut(1),
+    easeInOut=AnimationTimer.makeEaseInOut(1),
+    elastic=AnimationTimer.makeElastic(5),
+    bounce=AnimationTimer.makeBounce(5),
+
+    PUSH_ANIMATION_DURATION=3600,
+
+    pushAnimationTimer=new AnimationTimer(PUSH_ANIMATION_DURATION),
+
+    moveBall={
+      lastTime:undefined,
+      resetBall:function(){
+        ball.left=LEDGE_LEFT-BALL_RADIUS;
+        ball.top=LEDGE_TOP-BALL_RADIUS*2;
+      },
+      updateBallPosition:function(elapsed){
+        if(arrow===LEFT){
+          ball.left-=ball.velocityX*(elapsed/1000);
+        }else{
+          ball.left+=ball.velocityX*(elapsed/1000);
+        }
+      },
+      execute:function(ball,context,time){
+        if(pushAnimationTimer.isRunning()){
+          var animationElapsed=pushAnimationTimer.getElapsedTime(),
+              elapsed;
+
+          if(this.lastTime!==undefined){
+            elapsed=animationElapsed-this.lastTime;
+            this.updateBallPosition(elapsed);
+
+            if(isBallOnLedge()){
+              if(pushAnimationTimer.isOver()){
+                pushAnimationTimer.stop();
+              }
+            }else{
+              pushAnimationTimer.stop();
+              this.resetBall();
+            }
+          }
+        }
+        this.lastTime=animationElapsed;
+      }
+    },
+    ball=new Sprite("ball",...,[moveBall]);
+
+var linearRadioButton=document.getElementById("linearRadioButton"),
+    easeInRadioButton=document.getElementById("easeInRadioButton"),
+    easeOutRadioButton=document.getElementById("easeOutRadioButton"),
+    easeInOutRadioButton=document.getElementById("easeInOutRadioButton"),
+    elasticRadioButton=document.getElementById("elasticRadioButton"),
+    bounceRadioButton=document.getElementById("bounceRadioButton");
+
+linearRadioButton.onchange=function(e){
+  pushAnimationTimer.timeWrap=linear;
+};
+easeInRadioButton.onchange=function(e){
+  pushAnimationTimer.timeWrap=easeIn;
+};
+easeOutRadioButton.onchange=function(e){
+  pushAnimationTimer.timeWrap=easeOut;
+};
+easeInOutRadioButton.onchange=function(e){
+  pushAnimationTimer.timeWrap=easeInOut;
+};
+elasticRadioButton.onchange=function(e){
+  pushAnimationTimer.timeWrap=elastic;
+};
+bounceRadioButton.onchange=function(e){
+  pushAnimationTimer.timeWrap=bounce;
+};
+linearRadioButton.onchange=function(e){
+  pushAnimationTimer.timeWrap=linear;
+};
 </script>
 </body>
 </html>
