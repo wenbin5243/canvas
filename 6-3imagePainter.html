@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>A One Minute Stopwatch</title>
+
+  </head>
+
+   <body>
+      <canvas id='canvas' width='600' height='600'>
+         Canvas not supported
+      </canvas>
+        
+               
+<script type="text/javascript">
+window.requestNextAnimationFrame=(function(){
+  var originalWebkitMethod,
+      wrapper=undefined,
+      callback=undefined,
+      geckoVersion=0,
+      userAgent=navigator.userAgent,
+      index=0,
+      self=this;
+
+  if(window.webkitRequestAnimationFrame){
+    wrapper=function(time){
+      if(time===undefined){
+        time=+new Date();
+      }
+      self.callback(time);
+    };
+
+    originalWebkitMethod=window.webkitRequestAnimationFrame;
+
+    window.webkitRequestAnimationFrame=function(callback,element){
+      self.callback=callback;
+      originalWebkitMethod(wrapper,element);
+    }
+  }
+  if(window.mozRequestAnimationFrame){
+    index=userAgent.indexOf("rv:");
+    if(userAgent.indexOf('Gecko')!=-1){
+      geckoVersion=userAgent.substr(index+3,3);
+      if(geckoVersion==="2.0"){
+        window.mozRequestAnimationFrame=undefined;
+      }
+    }
+  }
+  return window.requestAnimationFrame||
+         window.webkitRequestAnimationFrame||
+         window.mozRequestAnimationFrame||
+         window.msRequestAnimationFrame||
+         window.oRequestAnimationFrame||
+         function(callback,element){
+          var start,
+              finish;
+
+          window.setTimeout(function(){
+            start=+new Date();
+            callback(start);
+            finish=+new Date();
+
+            self.timeout=1000/60-(finish-start);
+          },self.timeout);
+         };
+})();
+var Sprite=function(name,painter,behaviors){
+  if(name!==undefined){
+    this.name=name;
+  }
+  if(painter!==undefined){
+    this.painter=painter;
+  }
+  this.top=0;
+  this.left=0;
+  this.width=10;
+  this.height=10;
+  this.velocityX=0;
+  this.velocityY=0;
+  this.visible=true;
+  this.animating=false;
+  this.behaviors=behaviors||[];
+
+  return this;
+};
+Sprite.prototype={
+  paint:function(context){
+    if(this.painter!==undefined&&this.visible){
+      this.painter.paint(this,context);
+    }
+  },
+  update:function(context,time){
+    for(var i=0;i<this.behaviors.length;++i){
+      this.behaviors[i].execute(this,context,time);
+    }
+  }
+}
+
+var ImagePainter=function(imageUrl){
+  this.image=new Image();
+  this.image.src=imageUrl;
+};
+ImagePainter.prototype={
+  paint:function(sprite,context){
+    if(this.image.complete){
+      context.drawImage(this.image,sprite.left,sprite.top,sprite.width,sprite.height);
+    }
+  }
+};
+
+var context=document.getElementById("canvas").getContext("2d"),
+    bomb=new Sprite("bomb",new ImagePainter("img/bomb.png")),
+    BOMB_LEFT=220,
+    BOMB_TOP=80,
+    BOMB_WIDTH=180,
+    BOMB_HEIGHT=130;
+
+function animate(){
+  context.clearRect(0,0,canvas.width,canvas.height);
+  bomb.paint(context);
+  window.requestNextAnimationFrame(animate);
+}
+
+bomb.left=BOMB_LEFT;
+bomb.top=BOMB_TOP;
+bomb.width=BOMB_WIDTH;
+bomb.height=BOMB_HEIGHT;
+
+window.requestNextAnimationFrame(animate);
+
+
+</script>
+</body>
+</html>

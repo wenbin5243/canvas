@@ -7,12 +7,63 @@
   </head>
 
    <body>
-      <canvas id='canvas' width='750' height='600'>
+      <canvas id='canvas' width='600' height='600'>
          Canvas not supported
       </canvas>
         
                
 <script type="text/javascript">
+window.requestNextAnimationFrame=(function(){
+  var originalWebkitMethod,
+      wrapper=undefined,
+      callback=undefined,
+      geckoVersion=0,
+      userAgent=navigator.userAgent,
+      index=0,
+      self=this;
+
+  if(window.webkitRequestAnimationFrame){
+    wrapper=function(time){
+      if(time===undefined){
+        time=+new Date();
+      }
+      self.callback(time);
+    };
+
+    originalWebkitMethod=window.webkitRequestAnimationFrame;
+
+    window.webkitRequestAnimationFrame=function(callback,element){
+      self.callback=callback;
+      originalWebkitMethod(wrapper,element);
+    }
+  }
+  if(window.mozRequestAnimationFrame){
+    index=userAgent.indexOf("rv:");
+    if(userAgent.indexOf('Gecko')!=-1){
+      geckoVersion=userAgent.substr(index+3,3);
+      if(geckoVersion==="2.0"){
+        window.mozRequestAnimationFrame=undefined;
+      }
+    }
+  }
+  return window.requestAnimationFrame||
+         window.webkitRequestAnimationFrame||
+         window.mozRequestAnimationFrame||
+         window.msRequestAnimationFrame||
+         window.oRequestAnimationFrame||
+         function(callback,element){
+          var start,
+              finish;
+
+          window.setTimeout(function(){
+            start=+new Date();
+            callback(start);
+            finish=+new Date();
+
+            self.timeout=1000/60-(finish-start);
+          },self.timeout);
+         };
+})();
 var Sprite=function(name,painter,behaviors){
   if(name!==undefined){
     this.name=name;
@@ -75,7 +126,8 @@ var context=document.getElementById("canvas").getContext("2d"),
 
         context.restore();
       }
-    }
+    },
+    ball=new Sprite("ball",ballPainter);
 
 function drawGrid(color,stepx,stepy){
   context.save()
@@ -105,10 +157,80 @@ function drawGrid(color,stepx,stepy){
 
    context.restore();
 }
-drawGrid("lightgray",10,10);
-ball.left=320;
-ball.top=160;
-ball.paint(context);
+
+function drawHand(loc,isHour){
+  var angle=(Math.PI*2)*(loc/60)-Math.PI/2,
+      handRadius=isHour?CLOCK_RADIUS-HOUR_HAND_TRUNCATION:CLOCK_RADIUS,
+
+      lineEnd={
+        x:canvas.width/2+Math.cos(angle)*(handRadius-ball.width/2),
+        y:canvas.height/2+Math.sin(angle)*(handRadius-ball.width/2)
+      };
+
+  context.beginPath();
+  context.moveTo(canvas.width/2,canvas.height/2);
+  context.lineTo(lineEnd.x,lineEnd.y);
+  context.stroke();
+
+  ball.left=canvas.width/2+Math.cos(angle)*handRadius-ball.width/2;
+  ball.top=canvas.height/2+Math.sin(angle)*handRadius-ball.height/2;
+
+  ball.paint(context);
+}
+
+function drawClock(){
+  drawClockFace();
+  drawHands();
+}
+function drawHands(){
+  var date=new Date(),
+      hour=date.getHours();
+
+  ball.width=20;
+  ball.height=20;
+  drawHand(date.getSeconds(),false);
+
+  hour=hour>12?hour-12:hour;
+  ball.width=35;
+  ball.height=35;
+  drawHand(date.getMinutes(),false);
+
+  ball.width=50;
+  ball.height=50;
+  drawHand(hour*5+(date.getMinutes()/60)*5);
+
+  ball.width=10;
+  ball.height=10;
+  ball.left=canvas.width/2-ball.width/2;
+  ball.top=canvas.height/2-ball.height/2;
+  ballPainter.paint(ball,context);
+}
+function drawClockFace(){
+  context.beginPath();
+  context.arc(canvas.width/2,canvas.height/2,CLOCK_RADIUS,0,Math.PI*2,false);
+
+  context.save();
+  context.strokeStyle="rgba(0,0,0,0.2)";
+  context.stroke();
+  context.restore();
+}
+function animate(){
+  context.clearRect(0,0,canvas.width,canvas.height);
+  drawGrid("lightgray",10,10);
+  drawClock();
+
+  window.requestNextAnimationFrame(animate);
+}
+ context.lineWidth=0.5;
+ context.strokeStyle="rgba(0,0,0,0.2)";
+ context.shadowColor="rgba(0,0,0,0.5)";
+ context.shadowOffsetX=2;
+ context.shadowOffsetY=2;
+ context.shadowBlur=4;
+ context.stroke();
+
+ window.requestNextAnimationFrame(animate);
+ drawGrid("lightgray",10,10);
 
 
 </script>

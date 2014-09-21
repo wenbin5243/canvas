@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Animating with sprite sheets</title>
+
+      <style> 
+         body {
+            background: #dddddd;
+         }
+
+         #canvas {
+            position: absolute;
+            left: 0px;
+            top: 20px;
+            margin: 20px;
+            background: #ffffff;
+            border: thin inset rgba(100,150,230,0.5);
+         }
+
+         #animateButton {
+            margin-top: 10px;
+            margin-left: 15px;
+            margin-bottom: 10px;
+         }
+      </style>
+   </head>
+
+  <body>
+    <input id='animateButton' type='button' value='Animate'/>
+
+    <canvas id='canvas' width='462' height='200'>
+      Canvas not supported
+    </canvas>
+        
+               
+<script type="text/javascript">
+window.requestNextAnimationFrame=(function(){
+  var originalWebkitMethod,
+      wrapper=undefined,
+      callback=undefined,
+      geckoVersion=0,
+      userAgent=navigator.userAgent,
+      index=0,
+      self=this;
+
+  if(window.webkitRequestAnimationFrame){
+    wrapper=function(time){
+      if(time===undefined){
+        time=+new Date();
+      }
+      self.callback(time);
+    };
+
+    originalWebkitMethod=window.webkitRequestAnimationFrame;
+
+    window.webkitRequestAnimationFrame=function(callback,element){
+      self.callback=callback;
+      originalWebkitMethod(wrapper,element);
+    }
+  }
+  if(window.mozRequestAnimationFrame){
+    index=userAgent.indexOf("rv:");
+    if(userAgent.indexOf('Gecko')!=-1){
+      geckoVersion=userAgent.substr(index+3,3);
+      if(geckoVersion==="2.0"){
+        window.mozRequestAnimationFrame=undefined;
+      }
+    }
+  }
+  return window.requestAnimationFrame||
+         window.webkitRequestAnimationFrame||
+         window.mozRequestAnimationFrame||
+         window.msRequestAnimationFrame||
+         window.oRequestAnimationFrame||
+         function(callback,element){
+          var start,
+              finish;
+
+          window.setTimeout(function(){
+            start=+new Date();
+            callback(start);
+            finish=+new Date();
+
+            self.timeout=1000/60-(finish-start);
+          },self.timeout);
+         };
+})();
+var Sprite=function(name,painter,behaviors){
+  if(name!==undefined){
+    this.name=name;
+  }
+  if(painter!==undefined){
+    this.painter=painter;
+  }
+  this.top=0;
+  this.left=0;
+  this.width=10;
+  this.height=10;
+  this.velocityX=0;
+  this.velocityY=0;
+  this.visible=true;
+  this.animating=false;
+  this.behaviors=behaviors||[];
+
+  return this;
+};
+Sprite.prototype={
+  paint:function(context){
+    if(this.painter!==undefined&&this.visible){
+      this.painter.paint(this,context);
+    }
+  },
+  update:function(context,time){
+    for(var i=0;i<this.behaviors.length;++i){
+      this.behaviors[i].execute(this,context,time);
+    }
+  }
+}
+
+var ImagePainter=function(imageUrl){
+  this.image=new Image();
+  this.image.src=imageUrl;
+};
+ImagePainter.prototype={
+  paint:function(sprite,context){
+    if(this.image.complete){
+      context.drawImage(this.image,sprite.left,sprite.top,sprite.width,sprite.height);
+    }
+  }
+};
+SpriteSheetPainter=function(cells){
+  this.cells=cells||[];
+  this.cellIndex=0;
+};
+SpriteSheetPainter.prototype={
+  advance:function(){
+    if(this.cellIndex==this.cells.length-1){
+      this.cellIndex=0;
+    }else{
+      this.cellIndex++;
+    }
+  },
+  paint:function(sprite,context){
+    var cell=this.cells[this.cellIndex];
+    context.drawImage(spritesheet,cell.x,cell.y,cell.w,cell.h,sprite.left,sprite.top,cell.w,cell.h);
+  },
+}
+
+var context=document.getElementById("canvas").getContext("2d"),
+    animateButton=document.getElementById("animateButton"),
+    spritesheet=new Image(),
+    runnerCells=[
+      {left:0,top:0,width:47,height:64},
+      {left:55,top:0,width:44,height:64},
+      {left:107,top:0,width:39,height:64},
+      {left:150,top:0,width:46,height:64},
+      {left:208,top:0,width:49,height:64},
+      {left:265,top:0,width:46,height:64},
+      {left:320,top:0,width:42,height:64},
+      {left:380,top:0,width:35,height:64},
+      {left:425,top:0,width:35,height:64},
+    ],
+    sprite=new Sprite("runner",new SpriteSheetPainter(runnerCells)),
+    interval,
+    lastAdvance=0,
+    paused=false,
+    PAGEFLIP_INTERVAL=100,
+    runInPlace={
+      lastAdvance:0,
+      PAGEFLIP_INTERVAL:1000,
+      execute:function(sprite,context,now){
+        if(now-this.lastAdvance>this.PAGEFLIP_INTERVAL){
+          sprite.painter.advance();
+          this.lastAdvance=now;
+        }
+      }
+      
+    },
+    sprite=new Sprite("runner",
+           new SpriteSheetPainter(runnerCells),[runInPlace]);
+
+function drawBackground(){
+  var STEP_Y=12,
+      i=context.canvas.height;
+
+  while(i<STEP_Y*4){
+    context.beginPath();
+    context.moveTo(0,i);
+    context.lineTo(context.canvas.width,i);
+    context.stroke();
+    i-=STEP_Y;
+  }
+}
+
+function pauseAnimation(){
+  animateButton.value="animate";
+  paused=true;
+}
+function startAnimation(){
+  animateButton.value="pause";
+  paused=false;
+  lastAdvance=+new Date();
+  window.requestNextAnimationFrame(animate);
+}
+
+animateButton.onclick=function(e){
+  if(animateButton.value==="animate"){
+    startAnimation();
+  }else{
+    pauseAnimation();
+  }
+}
+
+function animate(time){
+  if(!paused){
+    context.clearRect(0,0,canvas.width,canvas.height);
+    drawBackground();
+    context.drawImage(spritesheet,0,0);
+    sprite.update(context,time);
+    sprite.paint(context);
+    if(time-lastAdvance>PAGEFLIP_INTERVAL){
+      sprite.painter.advance();
+      lastAdvance=time;
+    }
+    window.requestNextAnimationFrame(animate);
+  }
+}
+
+spritesheet.src="img/running-sprite-sheet.png";
+spritesheet.onload=function(e){
+  context.drawImage(spritesheet,0,0);
+};
+
+sprite.left=200;
+sprite.top=100;
+context.strokeStyle="lightgray";
+context.lineWidth=0.5;
+
+drawBackground();
+
+
+</script>
+</body>
+</html>

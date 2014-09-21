@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Animating with sprite sheets</title>
+
+      <style> 
+         body {
+            background: #dddddd;
+         }
+
+         #canvas {
+            position: absolute;
+            left: 0px;
+            top: 20px;
+            margin: 20px;
+            background: #ffffff;
+            border: thin inset rgba(100,150,230,0.5);
+         }
+
+         #animateButton {
+            margin-top: 10px;
+            margin-left: 15px;
+            margin-bottom: 10px;
+         }
+      </style>
+   </head>
+
+  <body>
+    <input id='explosionButton' type='button' value='Animate'/>
+
+    <canvas id='canvas' width='462' height='200'>
+      Canvas not supported
+    </canvas>
+        
+<script src='js/requestNextAnimationFrame.js'></script>
+<script src='js/sprites.js'></script>               
+<script type="text/javascript">
+
+
+var context=document.getElementById("canvas").getContext("2d"),
+    explosionButton=document.getElementById("explosionButton"),
+
+    BOMB_LEFT=100,
+    BOMB_TOP=80,
+    BOMB_WIDTH=180,
+    BOMB_HEIGHT=130,
+
+    NUM_EXPLOSION_PAINTERS=9,
+    NUM_FUSE_PAINTERS=9,
+
+    bombPainter=new ImagePainter("img/bomb.png"),
+    bombNoFusePainter=new ImagePainter("img/bomb-no-fuse.png"),
+    fuseBurningPainters=[],
+    explosionPainters=[],
+
+    fuseBurningAnimator=new SpriteAnimator(
+      fuseBurningPainters,
+      function(){
+        bomb.painter=bombNoFusePainter;
+      }
+    );
+    explosionAnimator=new SpriteAnimator(
+      explosionPainters,
+      function(){
+        bomb.painter=bombNoFusePainter;
+      }
+    );
+    bomb=new Sprite("bomb",bombPainter),
+    function resetBombNoFuse(){
+      bomb.painter=bombNoFusePainter;
+    }
+
+    explosionButton.onclick=function(e){
+      if(bomb.animating)
+        return;
+      fuseBurningAnimator.start(bomb,2000);
+      setTimeout(function(){
+        explosionAnimator.start(bomb,1000);
+        setTimeout(function(){
+          bomb.painter=bombPainter;
+        },2000);
+      },3000);
+    };
+
+    function animate(now){
+      context.clearRect(0,0,canvas.width,canvas.height);
+      bomb.paint(context);
+      window.requestNextAnimationFrame(animate);
+    }
+
+    bomb.left=BOMB_LEFT;
+    bomb.top=BOMB_TOP;
+
+    bomb.width=BOMB_WIDTH;
+    bomb.height=BOMB_HEIGHT;
+
+    for(var i=0;i<NUM_FUSE_PAINTERS;++i){
+      fuseBurningPainters.push(new ImagePainter("img/fuse-0"+i+".png"));
+    }
+    for(var i=0;i<NUM_EXPLOSION_PAINTERS;++i){
+      explosionPainters.push(new ImagePainter("img/explosion-0"+i+".png"));
+    }
+
+    window.requestNextAnimationFrame(animate);
+
+
+</script>
+</body>
+</html>
