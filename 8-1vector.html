@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Warping Time</title>
+
+      <style> 
+         body {
+            background: #cdcdcd;
+         }
+
+         .controls {
+            position: absolute;
+            left: 150px;
+            top: 10px;
+            font: 12px Arial;
+         }
+
+         #canvas {
+            position: absolute;
+            left: 0px;
+            top: 20px;
+            margin: 20px;
+            border: thin inset rgba(100,150,230,0.8);
+            background: #efefef;
+         }
+
+         #animateButton {
+            margin-left: 15px;
+            margin-bottom: 10px;
+         }
+      </style>
+   </head>
+
+  <body>
+    <input id='animateButton' type='button' value='Animate'/>
+
+    <canvas id='canvas' width='420' height='100'>
+      Canvas not supported
+    </canvas>
+
+   <div id='motionControls' class='controls'>
+      <div id='motionRadios'>
+         <input type='radio' name='motion' id='linearRadio' checked/>Linear
+         <input type='radio' name='motion' id='easeInRadio'/>Ease In
+         <input type='radio' name='motion' id='easeOutRadio'/>Ease Out
+         <input type='radio' name='motion' id='easeInOutRadio'/>Ease In/Out
+      </div>
+   </div>
+
+<script src='js/stopwatch.js'></script>
+<script src='js/animationTimer.js'></script>
+<script src='js/requestNextAnimationFrame.js'></script>
+<script src='js/sprites.js'></script>              
+<script type="text/javascript">
+var Vector=function(x,y){
+  this.x=x;
+  this.y=y;
+};
+
+Vector.prototype={
+  getMagnitude:function(){
+    return Math.sqrt(Math.pow(this.x,2)+
+                     Math.pow(this.y,2));
+  },
+  add:function(vector){
+    var v=new Vector();
+    v.x=this.x+vector.x;
+    v.y=this.y+vector.y;
+    return v;
+  },
+
+  subtract:function(vector){
+    var v=new Vector();
+    v.x=this.x-vector.x;
+    v.y=this.y-vector.y;
+    return v;
+  },
+  dotProduct:function(vector){
+    return this.x*vector.x+
+           this.y*vector.y;
+  },
+  edge:function(vector){
+    return this.subtract(vector);
+  },
+  perpendicular:function(){
+    var v=new Vector(0,0),
+        m=this.getMagnitude();
+
+    if(m!=0){
+      v.x=this.x/m;
+      v.y=this.y/m;
+    }
+    return v;
+  },
+  normal:function(){
+    var p=this.perpendicular();
+    return p.normalize();
+  }
+}
+var Projection=function(min,max){
+  this.min=min;
+  this.max=max;
+};
+
+Projection.prototype={
+  overlaps:function(projection){
+    return this.max>projection.min&&projection.max>this.min;
+  }
+};
+var Shape=function(){
+  this.x=undefined;
+  this.y=undefined;
+  this.strokeStyle="rgba(255,253,208,0.9)";
+  this.fillStyle="rgba(147,197,114,0.8)";
+};
+Shape.prototype={
+  collidesWith:function(shape){
+    var axes=this.getAxes().concat(shape.getAxes());
+    return !this.separationOnAxes(axes,shape);
+  },
+  separationOnAxes:function(axes,shape){
+    for(var i=0;i<axes.length;++i){
+      axis=axes[i];
+      projection1=shape.project(axis);
+      projection2=this.project(axis);
+
+      if(!projection1.overlaps(projection2)){
+        return true;
+      }
+    }
+    return false;
+  },
+  project:function(axis){
+    throw "project(axis) not implemented";
+  },
+  getAxes:function(){
+    throw "getAxes() not implemented";
+  },
+  move:function(dx,dy){
+    throw "move(dx,dy) not implemented";
+  },
+
+  createPath:function(context){
+    throw "createPath(context) not implemented";
+  },
+  fill:function(context){
+    context.save();
+    context.fillStyle=this.fillStyle;
+    this.createPath(context);
+    context.fill();
+    context.restore();
+  },
+
+  stroke:function(context){
+    context.save();
+    context.strokeStyle=this.strokeStyle;
+    this.createPath(context);
+    context.stroke();
+    context.restore();
+  },
+  isPointInPath:function(context,x,y){
+    this.createPath(context);
+    return context.isPointInPath(x,y);
+  }
+}
+
+var Point=function(x,y){
+  this.x=x;
+  this.y=y;
+};
+var Polygon=function(){
+  this.points=[];
+  this.strokeStyle="blue";
+  this.fillStyle="white";
+};
+
+Polygon.prototype=new Shape();
+Polygon.prototype.getAxes=function(){
+  var v1=new Vector(),
+      v2=new Vector(),
+      axes=[];
+
+  for(var i=0;i<this.points.length-1;i++){
+    v1.x=this.points[i].x;
+    v1.y=this.points[i].y;
+
+    v2.x=this.points[i+1]
+  }
+}
+</script>
+</body>
+</html>
