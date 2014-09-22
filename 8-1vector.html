@@ -33,161 +33,125 @@
    </head>
 
   <body>
-    <input id='animateButton' type='button' value='Animate'/>
 
-    <canvas id='canvas' width='420' height='100'>
+    <canvas id='canvas' width='600' height='600'>
       Canvas not supported
     </canvas>
 
-   <div id='motionControls' class='controls'>
-      <div id='motionRadios'>
-         <input type='radio' name='motion' id='linearRadio' checked/>Linear
-         <input type='radio' name='motion' id='easeInRadio'/>Ease In
-         <input type='radio' name='motion' id='easeOutRadio'/>Ease Out
-         <input type='radio' name='motion' id='easeInOutRadio'/>Ease In/Out
-      </div>
-   </div>
-
-<script src='js/stopwatch.js'></script>
-<script src='js/animationTimer.js'></script>
-<script src='js/requestNextAnimationFrame.js'></script>
-<script src='js/sprites.js'></script>              
+<script src='js/shapes.js'></script>            
 <script type="text/javascript">
-var Vector=function(x,y){
-  this.x=x;
-  this.y=y;
-};
 
-Vector.prototype={
-  getMagnitude:function(){
-    return Math.sqrt(Math.pow(this.x,2)+
-                     Math.pow(this.y,2));
-  },
-  add:function(vector){
-    var v=new Vector();
-    v.x=this.x+vector.x;
-    v.y=this.y+vector.y;
-    return v;
-  },
+var canvas=document.getElementById("canvas"),
+    context=canvas.getContext("2d"),
+    shapes=[],
+    polygonPoints=[
+      [new Point(250,150),new Point(250,250),
+       new Point(350,250)],
+      [new Point(100,100),new Point(100,150),
+       new Point(150,150),new Point(150,100)],
+      [new Point(400,100),new Point(380,150),
+       new Point(500,150),new Point(520,100)]
+    ],
+    polygonStrokeStyle=["blue","yellow","red"],
+    polygonFillStyle=["rgba(255,255,0,0.7)",
+                      "rgba(100,140,230,0.6)",
+                      "rgba(255,255,255,0.8)"],
+    mousedown={x:0,y:0},
+    lastdrag={x:0,y:0},
+    shapeBeingDragged=undefined;
 
-  subtract:function(vector){
-    var v=new Vector();
-    v.x=this.x-vector.x;
-    v.y=this.y-vector.y;
-    return v;
-  },
-  dotProduct:function(vector){
-    return this.x*vector.x+
-           this.y*vector.y;
-  },
-  edge:function(vector){
-    return this.subtract(vector);
-  },
-  perpendicular:function(){
-    var v=new Vector(0,0),
-        m=this.getMagnitude();
-
-    if(m!=0){
-      v.x=this.x/m;
-      v.y=this.y/m;
-    }
-    return v;
-  },
-  normal:function(){
-    var p=this.perpendicular();
-    return p.normalize();
-  }
+function windowToCanvas(x,y){
+  var bbox=canvas.getBoundingClientRect();
+  return{
+    x:x-bbox.left*(canvas.width/bbox.width),
+    y:y-bbox.top*(canvas.height/bbox.height)
+  };
 }
-var Projection=function(min,max){
-  this.min=min;
-  this.max=max;
-};
+function drawShapes(){
+  shapes.forEach(function(shape){
+    shape.stroke(context);
+    shape.fill(context);
+  });
+}
+function detectCollisions(){
+  var textY=30,
+      numShapes=shapes.length,
+      i;
 
-Projection.prototype={
-  overlaps:function(projection){
-    return this.max>projection.min&&projection.max>this.min;
-  }
-};
-var Shape=function(){
-  this.x=undefined;
-  this.y=undefined;
-  this.strokeStyle="rgba(255,253,208,0.9)";
-  this.fillStyle="rgba(147,197,114,0.8)";
-};
-Shape.prototype={
-  collidesWith:function(shape){
-    var axes=this.getAxes().concat(shape.getAxes());
-    return !this.separationOnAxes(axes,shape);
-  },
-  separationOnAxes:function(axes,shape){
-    for(var i=0;i<axes.length;++i){
-      axis=axes[i];
-      projection1=shape.project(axis);
-      projection2=this.project(axis);
-
-      if(!projection1.overlaps(projection2)){
-        return true;
+  if(shapeBeingDragged){
+    for(i=0;i<numShapes;++i){
+      shape=shapes[i];
+      if(shape!==shapeBeingDragged){
+        if(shapeBeingDragged.collidesWith(shape)){
+          context.fillStyle=shape.fillStyle;
+          context.fillText("collision",20,textY);
+          textY+=40;
+        }
       }
     }
-    return false;
-  },
-  project:function(axis){
-    throw "project(axis) not implemented";
-  },
-  getAxes:function(){
-    throw "getAxes() not implemented";
-  },
-  move:function(dx,dy){
-    throw "move(dx,dy) not implemented";
-  },
-
-  createPath:function(context){
-    throw "createPath(context) not implemented";
-  },
-  fill:function(context){
-    context.save();
-    context.fillStyle=this.fillStyle;
-    this.createPath(context);
-    context.fill();
-    context.restore();
-  },
-
-  stroke:function(context){
-    context.save();
-    context.strokeStyle=this.strokeStyle;
-    this.createPath(context);
-    context.stroke();
-    context.restore();
-  },
-  isPointInPath:function(context,x,y){
-    this.createPath(context);
-    return context.isPointInPath(x,y);
   }
 }
+canvas.onmousedown=function(e){
+  var location=windowToCanvas(e.clientX,e.clientY);
 
-var Point=function(x,y){
-  this.x=x;
-  this.y=y;
+  shapes.forEach(function(shape){
+    if(shape.isPointInPath(context,location.x,location.y)){
+      shapeBeingDragged=shape;
+      mousedown.x=location.x;
+      mousedown.y=location.y;
+      lastdrag.x=location.x;
+      lastdrag.y=location.y;
+    }
+  });
 };
-var Polygon=function(){
-  this.points=[];
-  this.strokeStyle="blue";
-  this.fillStyle="white";
+
+canvas.onmousemove=function(e){
+  var location,
+      dragVector;
+      if(shapeBeingDragged!==undefined){
+        location=windowToCanvas(e.clientX,e.clientY);
+        dragVector={
+          x:location.x-lastdrag.x,
+          y:location.y-lastdrag.y
+        };
+        lastdrag.x=location.x;
+        lastdrag.y=location.y;
+
+        context.clearRect(0,0,canvas.width,canvas.height);
+        drawShapes();
+        detectCollisions();
+      }
 };
+canvas.onmouseup=function(e){
+  shapeBeingDragged=undefined;
+};
+for(var i=0;i<polygonPoints.length;++i){
+  var polygon=new Polygon(),
+      points=polygonPoints[i];
 
-Polygon.prototype=new Shape();
-Polygon.prototype.getAxes=function(){
-  var v1=new Vector(),
-      v2=new Vector(),
-      axes=[];
+  polygon.strokeStyle=polygonStrokeStyle[i];
+  polygon.fillStyle=polygonFillStyle[i];
 
-  for(var i=0;i<this.points.length-1;i++){
-    v1.x=this.points[i].x;
-    v1.y=this.points[i].y;
+  points.forEach(function(point){
+    polygon.addPoint(point.x,point.y);
+  });
 
-    v2.x=this.points[i+1]
-  }
+  shapes.push(polygon);
 }
+
+context.shadowColor="rgba(100,140,255,0.5)";
+context.shadowBlur=4;
+context.shadowOffsetX=2;
+context.shadowOffsetY=2;
+context.font="38px Arial";
+
+drawShapes();
+
+context.save();
+context.fillStyle="cornflowerblue";
+context.font="24px Arial";
+context.fillText("Drag shapes over each other",10,25);
+context.restore();
 </script>
 </body>
 </html>
