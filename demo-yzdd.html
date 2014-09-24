@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Using requestAnimationFrame()</title>
+
+      <style> 
+         body {
+            background: #dddddd;
+         }
+
+         #canvas {
+            background: #014db5;
+            cursor: pointer;
+            margin-left: 10px;
+            margin-top: 10px;
+            -webkit-box-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+            -moz-box-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+            box-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+         }
+
+         #controls {
+            margin-top: 10px;
+            margin-left: 15px;
+         }
+      </style>
+   </head>
+
+   <body>
+      <div id='controls'>
+         <input id='listenButton' type='button' value='监听'/>
+         <input id='thinkButton' type='button' value='思考'/>
+      </div>
+
+      <canvas id='canvas' width='320' height='480'>
+         Canvas not supported
+      </canvas>
+        
+               
+<script type="text/javascript">
+//requestAnimationFrame兼容，用来执行动画
+window.requestNextAnimationFrame=(function(){
+  var originalWebkitMethod,
+      wrapper=undefined,
+      callback=undefined,
+      geckoVersion=0,
+      userAgent=navigator.userAgent,
+      index=0,
+      self=this;
+
+  if(window.webkitRequestAnimationFrame){
+    wrapper=function(time){
+      if(time===undefined){
+        time=+new Date();
+      }
+      self.callback(time);
+    };
+
+    originalWebkitMethod=window.webkitRequestAnimationFrame;
+
+    window.webkitRequestAnimationFrame=function(callback,element){
+      self.callback=callback;
+      originalWebkitMethod(wrapper,element);
+    }
+  }
+  if(window.mozRequestAnimationFrame){
+    index=userAgent.indexOf("rv:");
+    if(userAgent.indexOf('Gecko')!=-1){
+      geckoVersion=userAgent.substr(index+3,3);
+      if(geckoVersion==="2.0"){
+        window.mozRequestAnimationFrame=undefined;
+      }
+    }
+  }
+  return window.requestAnimationFrame||
+         window.webkitRequestAnimationFrame||
+         window.mozRequestAnimationFrame||
+         window.msRequestAnimationFrame||
+         window.oRequestAnimationFrame||
+         function(callback,element){
+          var start,
+              finish;
+
+          window.setTimeout(function(){
+            start=+new Date();
+            callback(start);
+            finish=+new Date();
+
+            self.timeout=1000/60-(finish-start);
+          },self.timeout);
+         };
+})();
+
+var canvas=document.getElementById("canvas"),
+    context=canvas.getContext("2d"),
+    listenButton=document.getElementById("listenButton"),
+    thinkButton=document.getElementById("thinkButton"),
+    listen=false,//监听状态
+    think=false,//思考状态
+    listenFrame=0,//监听帧数
+    thinkFrame=0,//思考帧数
+    buddle=[],//泡泡
+    wave=[];//波形
+//实例化
+for(var i=0;i<20;i++){
+  buddle[i]=new Buddle(Math.random()*canvas.width,Math.random()*canvas.height,0,Math.random()*5000);
+}
+
+//泡泡类
+function Buddle(x,y,radius,delay){
+  this.x=x;//x坐标
+  this.y=y;//y坐标
+  this.radius=radius;//半径
+  this.delay=delay;//延时
+}
+//绘制
+Buddle.prototype.draw=function(){
+    context.save();
+    context.beginPath();
+    context.arc(this.x,this.y,this.radius,0,Math.PI*2,false);
+    if(this.radius>95&&this.radius<=100){
+      context.strokeStyle="rgba(255,255,255,0.5)";
+    }else{
+      context.strokeStyle="#fff";
+    }
+    context.stroke();
+    context.restore(); 
+}
+//冒泡
+Buddle.prototype.budding=function(){
+    this.radius+=0.5;
+    
+    if(this.radius==100){
+      this.radius=0;
+    }
+}
+//泡泡聚拢
+Buddle.prototype.gather=function(){
+  if(this.radius>2){
+    this.radius-=2;
+  }else{
+    this.radius=0;
+  }
+  
+  if(this.x<canvas.width/2){
+    this.x+=5;
+  }
+  if(this.x>canvas.width/2){
+    this.x-=5;
+  }
+  if(this.y<canvas.height/2){
+    this.y+=5;
+  }
+  if(this.y>canvas.height/2){
+    this.y-=5;
+  }
+}
+//波形类
+function Wave(translateX){
+  this.translateX=translateX;//到中心的距离
+  this.waveHeight=6;//声波高度，随机数据
+  this.offsetX=0;//和中心的偏移量
+  this.delay;//延迟
+}
+//方块停留一秒
+Wave.prototype.draw=function(){
+  context.save();
+  context.beginPath();
+  context.fillStyle="#fff";
+  context.translate(canvas.width/2,canvas.height/2)
+  context.rect(-10,-10,20,20);
+  context.fill();
+  context.restore();
+}
+//方块向左展开
+Wave.prototype.spreadLeft=function(){
+  context.save();
+  context.translate(canvas.width/2-this.offsetX+10,canvas.height/2);
+  this.spreed();
+  context.restore();
+}
+//方块向右展开
+Wave.prototype.spreadRight=function(){
+  context.save();
+  context.translate(canvas.width/2+this.offsetX-10,canvas.height/2);
+  this.spreed();
+  context.restore();
+}
+Wave.prototype.spreed=function(){
+  context.beginPath();
+  
+  if(listenFrame>3000){
+    this.moving();
+  }else{
+    context.rect(-3,-3,6,6);
+  }
+  
+  if(this.offsetX<=this.translateX){
+    this.offsetX+=10;
+  }
+  context.fillStyle="#fff";
+  context.fill(); 
+  
+  
+}
+//声波起伏
+Wave.prototype.moving=function(){
+  this.waveHeight=Math.random()*100;
+  context.rect(-3,-this.waveHeight/2,6,this.waveHeight);
+}
+//思考
+Wave.prototype.thinking=function(){
+  this.delay=this.translateX*26+thinkFrame+500;
+  context.save();
+  context.beginPath();
+  context.translate(canvas.width/2+this.translateX-100,canvas.height/2);
+  
+  //动画循环
+  if(this.delay%5000<500){
+    this.waveHeight++;
+  }if(this.delay%5000>=500&&this.delay%5000<1000){
+    this.waveHeight--;
+  }if(this.delay%5000>=1000&&this.delay%5000<5000){
+    this.waveHeight=6;
+  }
+  if(this.waveHeight<6){
+    this.waveHeight=6;
+  }
+  context.rect(-3,-this.waveHeight/2,6,this.waveHeight);
+  context.fillStyle="#fff";
+  context.fill();
+  context.restore();
+}
+//动画
+function animate(time){
+  context.clearRect(0,0,canvas.width,canvas.height);
+  for(var i=0;i<20;i++){
+    if(time>buddle[i].delay&&listen==false&&think==false){
+      buddle[i].budding();
+      buddle[i].draw();
+    }
+    if(listen==true&&think==false){
+      listenFrame++;
+
+      buddle[i].gather();
+      buddle[i].draw();
+      //方块停留一秒
+      if(listenFrame>1000&&listenFrame<2000){
+        wave[i].draw();
+      }
+      //方块向两边展开
+      if(listenFrame>2000){
+        if(i<10){
+          wave[i].spreadLeft();
+        }else{
+          wave[i].spreadRight();
+        }
+      }
+    }
+    if(think==true&&listen==false){
+      thinkFrame++;
+      wave[i].thinking();
+    }
+      
+  }
+  window.requestNextAnimationFrame(animate);
+}
+
+window.onload=function(){
+  window.requestNextAnimationFrame(animate);
+}
+//点击监听按钮
+listenButton.onclick=function(){
+  listen=true;
+  think=false;
+  //实例化wave
+  for(var i=0;i<20;i++){
+    if(i<10){
+      wave[i]=new Wave(10*i);
+    }else{
+      wave[i]=new Wave(10*(i-10));
+    }
+    
+  }
+}
+//点击思考按钮
+thinkButton.onclick=function(){
+  think=true;
+  listen=false;
+  //实例化wave
+  for(var i = 0;i<20;i++){
+    wave[i]=new Wave(10*i);
+  }
+}
+</script>
+</body>
+</html>
