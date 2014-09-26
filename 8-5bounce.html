@@ -229,6 +229,125 @@ context.shadowOffsetY=2;
 context.font="38px Arial";
 
 window.requestNextAnimationFrame(animate);
+
+
+function detectCollisions(){
+  if(shapeMoving){
+    handleShapeCollisions();
+    handleEdgeCollisions();
+  }
+};
+
+function handleEdgeCollisions() {
+   var bbox = shapeMoving.boundingBox(),
+       right = bbox.left + bbox.width,
+       bottom = bbox.top + bbox.height;
+      
+   if (right > canvas.width || bbox.left < 0) {
+      velocity.x = -velocity.x;
+
+      if (right > canvas.width)
+         shapeMoving.move(0-(right-canvas.width), 0);
+
+      if (bbox.left < 0)
+         shapeMoving.move(-bbox.left, 0);
+   }
+   if (bottom > canvas.height || bbox.top < 0) {
+      velocity.y = -velocity.y;
+
+      if (bottom > canvas.height)
+         shapeMoving.move(0, 0-(bottom-canvas.height));
+      if (bbox.top < 0)
+         shapeMoving.move(0, -bbox.top);
+   }
+};
+
+function handleShapeCollisions(){
+  var mtv;
+  shapes.forEach(function(shape){
+    if(shape!==shapeMoving){
+      mtv=shapeMoving.collidesWith(shape);
+      if(collisionDetected(mtv)){
+        bounce(mtv,shapeMoving,shape);
+      }
+    }
+  });
+}
+
+function collisionDetected(mtv){
+  return mtv.axis!=undefined||mtv.overlap!==0;
+}
+
+function separate(mtv){
+  var dx,dy,velocityMagnitude,point;
+  if(mtv.axis===undefined){
+    point=new Point();
+    velocityMagnitude=Math.sqrt(Math.pow(velocity.x,2)+Math.pow(velocity.y,2));
+
+    point.x=velocity.x/velocityMagnitude;
+    point.y=velocity.y/velocityMagnitude;
+
+    mtv.axis=new Vector(point);
+  }
+  dy=mtv.axis.y*mtv.overlap;
+  dx=mtv.axis.x*mtv.overlap;
+  if((dx<0&&velocity.x<0)||
+    (dx>0&&velocity.x>0)){
+    dx=-dx;
+  }
+  if((dy<0&&velocity.y<0)||
+    (dy>0&&velocity.y>0)){
+    dy=-dy;
+  }
+  shapeMoving.move(dx,dy);
+}
+function checkMTVAxisDirection(mtv,collider,collidee){
+  var centroid1,centroid2,centroidVector,centroidUnitVector;
+
+  if(mtv.axis===undefined){
+    return;
+  }
+  centroid1=new Vector(collider.centroid()),
+  centroid2=new Vector(collider.centroid()),
+  centroidVector=centroid2.subtract(centroid1),
+  centroidUnitVector=(new Vector(centroidVector)).normalize();
+
+  if(centroidUnitVector.dotProduct(mtv.axis)>0){
+    mtv.axis.x=-mtv.axis.x;
+    mtv.axis.y=-mtv.axis.y;
+  }
+};
+
+function bounce(mtv,collider,collidee){
+  var dotProductRatio,vdot,ldotl,ldotl,point,
+      velocityVector=new Vector(new Point(velocity.x,velocity.y)),
+      velocityUnitVector=velocityVector.normalize(),
+      velocityVectorMagnitude=velocityVector.getMagnitude(),
+      perpendicular;
+
+  if(shapeMoving){
+    checkMTVAxisDirection(mtv,collider,collidee);
+    point=new Point();
+
+    if(mtv.axis!==undefined){
+      perpendicular=mtv.axis.perpendicular();
+    }else{
+      perpendicular=new Vector(new Point(-velocityUnitVector.y,
+                                          velocityUnitVector.x));
+    }
+    vdot1=velocityUnitVector.dotProduct(perpendicular);
+    ldotl=perpendicular.dotProduct(perpendicular);
+    dotProductRatio=vdot1/ldotl;
+
+    point.x=2*dotProductRatio*perpendicular.x-velocityUnitVector.x;
+    point.y=2*dotProductRatio*perpendicular.y-velocityUnitVector.y;
+
+    separate(mtv);
+
+    velocity.x=point.x*velocityVectorMagnitude;
+    velocity.y=point.y*velocityVectorMagnitude;
+  }
+}
   
 </script>
 </body>
