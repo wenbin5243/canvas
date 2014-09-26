@@ -166,5 +166,123 @@ Game.prototype={
 			this.startTime=this.startTime+now-this.startedPauseAt;
 			this.lastTime=now;
 		}
+	}，
+
+	pixelsPerFrame:function(time,velocity){
+		return velocity/this.fps;
+	},
+
+	getHighScores:function(){
+		var key=this.gameName+this.HIGH_SCORES_SUFFIX,
+			highScoresString=localStorage[key];
+
+		if(highScoresString==undefined){
+			localStorage[key]=JSON.stringify([]);
+		}
+		return JSON.parse(localStorage[key]);
+	},
+
+	setHighScore:function(highScore){
+		var key=this.gameName+this.HIGH_SCORES_SUFFIX,
+			highScoresString=localStorage[key];
+
+		highScore.unshift(highScore);
+		localStorage[key]=JSON.stringify(highScore);
+	},
+
+	clearHighScores:function(){
+		localStorage[this.gameName+this.HIGH_SCORES_SUFFIX]=JSON.stringify([]);
+	},
+
+	addKeyListener:function(keyAndListener){
+		this.keyListeners.push(keyAndListener);
+	},
+
+	findKeyListener:function(key){
+		var listener=undefined;
+		for(var i=0;i<this.keyListeners.length;++i){
+			var keyAndListener=this.keyListeners[i],
+				currentKey=keyAndListener.key;
+
+			if(currentKey===key){
+				listener=keyAndListener.listener;
+			}
+		};
+		return listener;
+	},
+
+	keyPressed:function(e){
+		var listener=undefined,
+			key=undefined;
+		switch(e.keyCode){
+			case 32:key="space"; break;
+			case 68:key="d"; break;
+			case 75;key="k" break;
+			case 83;key="s" break;
+			case 80;key="p" break;
+			case 37;key="left arrow" break;
+			case 39:key="right arrow" break;
+			case 38:key="up arrow" break;
+			case 40:key="down arrow" break;
+		}
+		listener=this.findKeyListener(key);
+		if(listener){
+			listener();
+		},
+		canPlayOggVorbis:function(){
+			return "" != this.audio.canPlayType('audio/ogg;codecs="vorbis"');
+		},
+
+		canPlayMp3:function(){
+			return "" != this.audio.canPlayType('audio/mpeg');
+		},
+
+		getAvailableSoundChannel:function(){
+			var audio;
+
+			for(var i=0;i<this.NUM_SOUND_CHANNELS;++i){
+				audio=this.soundChannels[i];
+				if(audio.played&&audio.played.length>0){
+					if(audio.ended){
+						return audio;
+					}
+				}else{
+					if(!audio.ended){
+						return audio;
+					}
+				}
+			}
+			return undefined;
+		},
+
+		playSound:function(id){
+			var channel=this.getAvailableSoundChannel(),
+				element=document.getElementById(id);
+
+			if(channel&&element){
+				channel.src=element.src===''?element.currentSrc:element.src;
+				channel.load();
+				channel.play();
+			}
+		},
+
+		addSprite:function(sprite){
+			this.sprites.push(sprite);
+		},
+
+		getSprite:function(name){
+			for(i in this.sprites){
+				if(this.sprites[i].name===name){
+					return this.sprites[i];
+				}
+
+			}
+			return null;
+		},
+
+		startAnimate:function(time){},
+		paintUnderSprites:function(){},
+		paintOverSprites:function(){},
+		endAnimate:function(){}
 	}
 }

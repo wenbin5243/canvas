@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Ungame</title>
+    <style type="text/css">
+#loadingToast {
+   padding: 20px;
+   position: absolute;
+   left: 50px;
+   top: 180px;
+   width: 450px;
+   height: 400px;
+   display: block;
+}
+
+#loadingToast .title {
+   padding-left: 177px;
+   font: 16px Arial;
+}
+
+#loadingToast p {
+   margin-left: 10px;
+   margin-right: 10px;
+   color: black;
+}
+      
+#highScoreParagraph {
+   position: absolute;
+   left: 150px;
+   top: -50px;
+   color: red;
+   font: 8em fantasy;
+   margin-left: 70px;
+   margin-bottom: 50px;
+}
+      
+#highScoreToast {
+   position: absolute;
+   left: 0px;
+   top: 200px;
+   color: cornflowerblue;
+   margin-left: 150px;
+   margin-top: 20px;
+   font: 18px fantasy;
+}
+
+#livesCanvas {
+   background: rgba(255,255,255,0.3);
+   position: absolute;
+   left: 475px;
+   top: 25px;
+   border: thin solid rbga(100,140,230,0.8);
+   -webkit-box-shadow: rgba(100,140,230,0.5) 2px 2px 6px;
+   -moz-box-shadow: rgba(100,140,230,0.5) 2px 2px 6px;
+   box-shadow: rgba(100,140,230,0.5) 2px 2px 6px;
+   -o-box-shadow: rgba(100,140,230,0.5) 2px 2px 6px;
+}
+      
+#gameCanvas {
+  margin: 20px;
+   background: rgba(120,168,249,0.7);
+  position: absolute;
+  left: 0px;
+  top: 0px;
+   -webkit-box-shadow: rgba(100,100,100,0.5) 4px 4px 8px;
+   -moz-box-shadow: rgba(100,140,230,0.5) 2px 2px 6px;
+   box-shadow: rgba(100,140,230,0.5) 2px 2px 6px;
+   -o-box-shadow: rgba(100,140,230,0.5) 2px 2px 6px;
+   border: thin solid cornflowerblue;
+}
+
+.floatingControls {
+   background: rgba(0, 0, 0, 0.1);
+   border: thin solid skyblue;
+   -webkit-box-shadow: rgba(0,0,0,0.3) 2px 2px 4px;
+   -moz-box-shadow: rgba(100,140,230,0.5) 2px 2px 6px;
+   box-shadow: rgba(100,140,230,0.5) 2px 2px 6px;
+   -o-box-shadow: rgba(100,140,230,0.5) 2px 2px 6px;
+   position: absolute;
+}   
+
+.floatingControls a {
+   font-size: 1.5em;
+   text-decoration: none;
+   color: rgba(255,255,0,0.6);
+}
+ 
+.floatingControls a:hover {
+   color: rgba(255,255,0,1.0);
+}
+
+#instructionsLink {
+   color: cornflowerblue;
+   text-decoration: none;
+}
+
+#instructionsLink:hover {
+   color: rgba(255,255,0,1.0);
+}
+
+#instructions p.title {
+   font-size: 1.5em;
+   color: blue;
+}
+      
+#instructions {
+   margin-left: 60px;
+   margin-top: 50px;
+   padding-left: 20px;
+   padding-right: 20px;
+   width: 700px;
+   height: 370px;
+   -webkit-box-shadow: rgba(0,0,0,0.3) 4px 4px 8px;
+   -moz-box-shadow: rgba(100,140,230,0.5) 2px 2px 6px;
+   box-shadow: rgba(100,140,230,0.5) 2px 2px 6px;
+   -o-box-shadow: rgba(100,140,230,0.5) 2px 2px 6px;
+   color: rgba(0, 0, 255, 0.8);
+   background: rgba(255, 255, 255, 0.8);
+}
+
+#instructionsOkayButtonDiv {
+   left: 0px;
+   width: 100%;
+   text-align: center; 
+}
+
+#instructionsOkayButton {
+   margin-top: 30px;
+}
+
+.toast {
+   background: rgba(255, 255, 255, 0.7);
+   border: thin solid skyblue;
+   -webkit-box-shadow: rgba(0,0,0,0.3) 2px 2px 4px;
+   -moz-box-shadow: rgba(100,140,230,0.5) 2px 2px 6px;
+   box-shadow: rgba(100,140,230,0.5) 2px 2px 6px;
+   -o-box-shadow: rgba(100,140,230,0.5) 2px 2px 6px;
+   position: absolute;
+   display: none;
+}
+
+#pausedToast {
+   padding: 5px 40px 20px 40px;
+   margin-left: 175px;
+   margin-top: 100px;
+   color: blue;
+}
+
+#pausedToast p {
+   color: blue;
+}
+
+#pausedToast p.title {
+   font-size: 1.50em;
+   color: blue;
+}
+
+#scoreToast {
+   background: rgba(255,255,255,0.5);
+   left: 25px;
+   top: 25px;
+   padding: 5px; 
+   font-size: 1.25em;
+   color: rgba(0,0,250,1.0);
+}
+
+div .title { 
+   color: blue;
+}
+
+div p { 
+   color: blue;
+}
+
+div a { 
+   text-decoration: none;
+   color: cornflowerblue;
+}
+
+p.title {
+   font-size: 1.5em;
+}
+
+#gameOverToast {
+   padding-left: 30px;
+   padding-right: 30px;
+   padding-bottom: 10px;
+   margin-left: 203px;
+   margin-top: 100px;
+   text-align: center;
+   display: none;
+}
+
+#highScoreList {
+   color: rgba(0,0,255,0.6);
+}
+
+#previousHighScoresTitle {
+   margin-top: 50px;
+}
+
+#loseLifeToast {
+   padding: 10px;
+   position: absolute;
+   left: 250px;
+   top: 300px;
+}
+
+#loadButtonSpan {
+   position: absolute;
+   left: 200px;
+   padding-top: 20px;
+}
+      
+.blurb {
+   padding: 10px;
+   display: block;
+   font: 12px Arial;
+}
+
+#progressDiv {
+   padding-left: 60px;
+   padding-top: 45px;
+}
+
+#loadingMessage {
+   display: none;
+   font: 13px Helvetica;
+   padding-left: 20px;
+} 
+    </style>
+  </head>
+
+   <body>
+      <!-- Game canvas........................................................... -->
+
+      <canvas id='gameCanvas' width='550' height='750'>
+         Canvas not supported
+      </canvas>
+
+      <!-- Loading Toast......................................................... -->
+
+      <div id='loadingToast' class='toast'>
+         <span id='loadingToastTitle' class='title'>The Ungame</span>
+
+         <span id='loadingToastBlurb' class='blurb'>
+            <p>This game is an ungame, sort of like the undead: The undead are not
+               really dead, and this is not really a game; however, it implements
+               essential functionality pertient to most games.</p>
+
+            <p>The ungame comes with:</p>
+
+            <ul>
+               <li>This loading screen</li>
+               <li>Asset management</li>
+               <li>Music and Sounds</li>
+               <li>A scrolling background with parallax</li>
+               <li>Lives indicator (upper right corner)</li>
+               <li>Score indicator (appears when the ungame starts)</li>
+               <li>High score functionality</li>
+               <li>Key processing (including throttling)</li>
+               <li>Pause (press 'p' key once the ungame starts)</li>
+               <li>Auto-Pause (when the window loses focus)</li>
+            </ul>
+
+            <p>The ungame is implemented with a
+               simple game engine (~200 lines of JavaScript).</p> 
+         </span>
+
+         <span id='loadButtonSpan'>
+            <input type='button' id='loadButton' value='Load Game...' autofocus='true'/>
+            <span id='loadingMessage'>Loading...</span>
+         </span>
+         
+         <div id='progressDiv'></div>
+      </div>
+
+      <!-- Scores................................................................ -->
+
+      <div id='scoreToast' class='toast'></div>
+
+      <!-- Lives................................................................. -->
+
+      <canvas id='livesCanvas' width='90' height='40'>
+         Canvas not supported
+      </canvas>
+
+      <!-- Paused................................................................ -->
+
+      <div id='pausedToast' class='toast'>
+        <p class='title' style='margin-left: 45px;'>Paused</p>
+        <p>Click anywhere to start</p>
+      </div>    
+      
+      <!-- Game Over............................................................. -->
+
+      <div id='gameOverToast' class='toast'>
+         <p class='title'>Game Over</p><br/>
+         <p><input id='clearHighScoresCheckbox' type='checkbox'/> clear high scores</p>
+         <input id='newGameButton' type='button' value='new game' autofocus='true'/>
+      </div>
+
+      <!-- High scores........................................................... -->
+
+      <p id='highScoreParagraph'></p>
+
+      <div id='highScoreToast' width='400' style='display: none'>
+        <p class='title'>High score!</p>
+
+        <p>What's your name?</p>
+
+        <input id='nameInput' type='text' autofocus='true'>
+        <input id='addMyScoreButton' type='button' value='add my score' disabled='true'>
+        <input id='newGameFromHighScoresButton' type='button' value='new game'>
+
+        <p class='title' id='previousHighScoresTitle' display='none'>
+          Previous High Scores
+        </p>
+
+        <!-- The following ordered list is populated by JavaScript in ungame.js -->
+        <ol id='highScoreList'></ol>
+      </div>
+
+      <!-- Lose Life.............................................................. -->
+
+      <div id='loseLifeToast' class='toast'>
+         <input id='loseLifeButton' type='button' value='Lose a life' autofocus='true'/>
+      </div>
+      
+      <!-- Sounds................................................................. -->
+
+      <audio id='pop' preload='auto'>
+         <source src='sounds/pop.ogg' type='audio/ogg'>
+         <source src='sounds/pop.mp3' type='audio/mp3'>
+      </audio>
+
+      <audio id='whoosh' preload='auto'>
+         <source src='sounds/whoosh.ogg' type='audio/ogg'>
+         <source src='sounds/whoosh.mp3' type='audio/mp3'>
+      </audio>
+    <script src = '../js/requestNextAnimationFrame.js'></script>
+    <script src = 'progressbar.js'></script>
+    <script src = '../gameEngine.js'></script>
+    <script type="text/javascript" src="shapes.js"></script>        
+<script type="text/javascript">
+var canvas=document.getElementById("canvas"),
+    context=canvas.getContext("2d"),
+    pausedToast=document.getElementById("pausedToast");
+    
+var game=new Game("ungame","gameCanvas"),
+    translateDelta=0.025,
+    translateOffset=0,
+    
+    score=0,
+    lastScore=0,
+    lastScoreUpdate=undefined,
+
+    HIGH_SCORES_DISPLAYED=10,
+
+    highScoreToast=document.getElementById("highScoreToast"),
+    highScoreParagraph=document.getElementById("highScoreParagraph"),
+    highScoreList=document.getElementById("highScoreList"),
+    nameInput=document.getElementById("nameInput"),
+    addMyScoreButton=document.getElementById("addMyScoreButton"),
+    newGameButton=document.getElementById("newGameButton"),
+    previousHighScoresTitle=document.getElementById("previousHighScoresTitle"),
+    newGameFromHighScoresButton=document.getElementById("newGameFromHighScoresButton"),
+    clearHighScoresCheckbox=document.getElementById("clearHighScoresCheckbox"),
+
+    gameOverToast=document.getElementById("gameOverToast");,
+    gameOver=false,
+    over=function(){
+      var highScore;
+      highScore=game.getHighScores();
+
+      if(highScores.length==0||score>highScores[0].score){
+        showHighScores();
+      }else{
+        gameOverToast.style.display="inline";
+      }
+      gameOver=true;
+      lastScore=score;
+      score=0;
+    };
+
+    showHighScores=function(){
+      highScoreParagraph.style.display="inline";
+      highScoreParagraph.innerText=score;
+      highScoreToast.style.display="inline";
+      updateHighScoreList();
+    };
+    updateHighScoreList=function(){
+      var el,
+          highScores=game.getHighScores(),
+          length=highScores.length,
+          highScore,
+          listParent=highScoreList.parentNode;
+
+      listParent.removeChild(highScoreList);
+      highScoreList=document.createElement("ol");
+      highScoreList.id="highScoreList";
+      listParent.appendChild(highScoreList);
+
+      if(length>0){
+        previousHighScoresTitle.style.display="block";
+        length=length>10?10:length;
+
+        for(var i=0;i<length;++i){
+          highScore=highScores[i];
+          el=document.createElement("li");
+          el.innerText=highScore.score+" by "+highScore.name;
+          highScoreList.appendChild(el);
+        }
+      }else{
+        previousHighScoresTitle.style.display="none";
+      }
+    }
+
+    togglePaused=function(){
+      game.togglePaused();
+      pausedToast.style.display=game.paused?"inline":"none";
+    },
+
+    pausedToast.onclick=function(e){
+      pausedToast.style.display="none";
+      togglePaused();
+    },
+
+    scrollBackground=function(){
+      translateOffset=(translateOffset+translateDelta)%game.canvas.width;
+      game.context.translate(-translateOffset,0);
+    },
+
+    paintClouds=function(context){
+      paintFarCloud(game.context,0,20);
+      paintNearCloud(game.context,game.context.canvas.width+120,20);
+    },
+
+    paintClouds=function(context){
+      paintFarCloud(game.context,0,20);
+      paintNearCloud(game.context,game.context.canvas.width+120,20);
+    },
+    paintSun=function(context){
+
+    },
+    paintFarCloud=function(context,x,y){
+      context.save();
+      scrollBackground();
+      context.restore();
+    },
+
+    paintNearCloud=function(context,x,y){
+      context.save();
+      scrollBackground();
+      scrollBackground();
+
+      context.restore();
+    },
+
+game.paintOverSprites=function(){
+  paintNearCloud(game.context,120,20);
+  paintNearCloud(game.context,game.context.canvas.width+120,20);
+};
+
+game.paintUnderSprites=function(){
+  if(!gameOver&&livesLeft===0){
+    over();
+  }else{
+    paintSun(game.context);
+    paintFarCloud(game.context,20,20);
+    paintFarCloud(game.context,game.context.canvas.width+20,20);
+
+    if(!gameOver){
+      updateScore();
+    }
+
+    updateLivesDisplay();
+  }
+};
+game.addKeyListener({
+  key:"p",
+  listener:function(){
+    game.togglePaused();
+  }
+});
+
+window.onblur=function windowOnBlur(){
+  if(!gameOver&&!game.paused){
+    togglePaused();
+  }
+},
+
+window.onfocus=function windowOnFocus(){
+  if(game.Paused){
+    togglePaused();
+  }
+}
+
+loadButton.onclick=function(e){
+  var interval,
+      loadingPercentComplete=0;
+
+  e.preventDefault();
+
+  processDiv.style.display="block";
+  loadButton.style.display="none";
+
+  loadingMessage.style.display="block";
+  progressDiv.appendChild(progressbar.domElement);
+
+  game.queueImage("images/image1.png");
+  game.queueImage("images/image2.png");
+  game.queueImage("images/image3.png");
+  game.queueImage("images/image4.png");
+  game.queueImage("images/image5.png");
+  game.queueImage("images/image6.png");
+  game.queueImage("images/image7.png");
+  game.queueImage("images/image8.png");
+  game.queueImage("images/image9.png");
+  game.queueImage("images/image10.png");
+  game.queueImage("images/image11.png");
+  game.queueImage("images/image12.png");
+  interval=setInterval(function(e){
+    loadingPercentComplete=game.loadImages();
+
+    if(loadingPercentComplete===100){
+      clearInterval(interval);
+      setTimeout(function(e){
+        loadingMessage.style.display="none";
+        progressDiv.style.display="none";
+
+        setTimeout(function(e){
+          loadingToastBlurb.style.display="none";
+          loadingToastTitle.style.display="none";
+
+          setTimeout(function(e){
+            loadingToast.style.display="none";
+            loseLifeToast.style.display="block";
+            game.playSound("sounds/pop");
+
+            setTimeout(function(e){
+              loading=false;
+              score=10;
+              scoreToast.innerText="10";
+              scoreToast.style.display="inline";
+              game.playSound("pop");
+            },1000);
+          },500);
+        },500);
+      },500);
+    }
+    progressbar.draw(loadingPercentComplete);
+  },16);
+}
+
+game.start();
+</script>
+</body>
+</html>
