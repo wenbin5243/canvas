@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>canvas</title>
+  <style type="text/css">
+  	canvas{
+  		border: 1px solid #ccc;
+  	}
+  </style>
+</head>
+<body>
+<canvas id="canvas" width="600" height="600">canvas not supported</canvas>
+<script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/ball.js"></script>
+<script type="text/javascript">
+window.onload=function(){
+  var canvas=document.getElementById("canvas"),
+      context=canvas.getContext("2d"),
+      ball=new Ball(),
+      vx=Math.random()*10-5,
+      vy=Math.random()*10-5,
+      friction=0.95;
+
+  ball.x=canvas.width/2;
+  ball.y=canvas.height/2;
+
+  (function drawFrame(){
+    window.requestAnimationFrame(drawFrame,canvas);
+    context.clearRect(0,0,canvas.width,canvas.height);
+
+    vx*=friction;
+    vy*=friction;
+    ball.x+=vx;
+    ball.y+=vy;
+    ball.draw(context);
+  }());
+};
+</script>
+</body>
+</html>

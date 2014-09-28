@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>canvas</title>
+  <style type="text/css">
+  	canvas{
+  		border: 1px solid #ccc;
+      background: #000;
+  	}
+  </style>
+</head>
+<body>
+<canvas id="canvas" width="600" height="600">canvas not supported</canvas>
+<textarea id="log"></textarea>
+<script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/ball.js"></script>
+<script type="text/javascript">
+window.onload=function(){
+  var canvas=document.getElementById("canvas"),
+      context=canvas.getContext("2d"),
+      ball=new Ball(),
+      mouse=utils.captureMouse(canvas),
+      log=document.getElementById("log");
+
+  ball.x=canvas.width/2;
+  ball.y=canvas.height/2;
+  ball.draw(context);
+
+  canvas.addEventListener("mousedown",function(){
+    if(utils.containsPoint(ball.getBounds(),mouse.x,mouse.y)){
+      log.value="in ball:mousedown";
+    }else{
+      log.value="canvas:mousedown";
+    }
+  },false);
+
+  canvas.addEventListener("mouseup",function(){
+    if(utils.containsPoint(ball.getBounds(),mouse.x,mouse.y)){
+      log.value="in ball:mouseup";
+    }else{
+      log.value="canvas:mouseup";
+    }
+  },false);
+
+  canvas.addEventListener("mousemove",function(){
+    if(utils.containsPoint(ball.getBounds(),mouse.x,mouse.y)){
+      log.value="in ball:mousemove";
+    }else{
+      log.value="canvas:mousemove";
+    }
+  },false);
+
+};
+</script>
+</body>
+</html>

@@ -11,14 +11,12 @@
 </head>
 <body>
 <canvas id="canvas" width="600" height="600">canvas not supported</canvas>
-<textarea id="log"></textarea>
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/ball.js"></script>
 <script type="text/javascript">
 window.onload=function(){
   var canvas=document.getElementById("canvas"),
       context=canvas.getContext("2d"),
-      log=document.getElementById("log"),
       balls=[],
       numBalls=80,
       gravity=0.5;
@@ -40,7 +38,10 @@ window.onload=function(){
        ball.x+ball.radius<0||
        ball.y-ball.radius>canvas.height||
        ball.y+ball.radius<0){
-      
+      ball.x=canvas.width/2;
+      ball.y=canvas.height;
+      ball.vx=Math.random()*2-1;
+      ball.vy=Math.random()*-10-10;
     }
     ball.draw(context);
   }
@@ -49,10 +50,7 @@ window.onload=function(){
     window.requestAnimationFrame(drawFrame,canvas);
     context.clearRect(0,0,canvas.width,canvas.height);
 
-    var i=balls.length;
-    while(i--){
-      draw(balls[i],i);
-    }
+    balls.forEach(draw);
   }());
 };
 </script>
