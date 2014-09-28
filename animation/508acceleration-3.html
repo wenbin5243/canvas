@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>canvas</title>
+  <style type="text/css">
+  	canvas{
+  		border: 1px solid #ccc;
+  	}
+  </style>
+</head>
+<body>
+<canvas id="canvas" width="600" height="600">canvas not supported</canvas>
+<script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/ball.js"></script>
+<script type="text/javascript">
+window.onload=function(){
+  var canvas=document.getElementById("canvas"),
+      context=canvas.getContext("2d"),
+      mouse=utils.captureMouse(canvas),
+      ball=new Ball(),
+      vx=0,
+      vy=0,
+      ax=0,
+      ay=0;
+
+  ball.x=canvas.width/2;
+  ball.y=canvas.height/2;
+
+  window.addEventListener("keydown",function(event){
+    switch(event.keyCode){
+      case 37:
+        ax=-0.1;
+        break;
+      case 39:
+        ax=0.1;
+        break;
+      case 38:
+        ay=-0.1;
+        break;
+      case 40:
+        ay=0.1;
+        break;
+    }
+  },false);
+
+  window.addEventListener("keyup",function(){
+    ax=0;
+    ay=0;
+  },false);
+
+  (function drawFrame(){
+    window.requestAnimationFrame(drawFrame,canvas);
+    context.clearRect(0,0,canvas.width,canvas.height);
+
+    vx+=ax;
+    vy+=ay;
+    ball.x+=vx;
+    ball.y+=vy;
+    ball.draw(context);
+  }());
+};
+</script>
+</body>
+</html>
