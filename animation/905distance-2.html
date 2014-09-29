@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>canvas</title>
+  <style type="text/css">
+  	canvas{
+  		border: 1px solid #ccc;
+  	}
+  </style>
+</head>
+<body>
+<canvas id="canvas" width="600" height="600">canvas not supported</canvas>
+<textarea id="log"></textarea>
+<script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/ball.js"></script>
+<script type="text/javascript">
+window.onload=function(){
+  var canvas=document.getElementById("canvas"),
+      context=canvas.getContext("2d"),
+      mouse=utils.captureMouse(canvas),
+      log=document.getElementById("log"),
+      ballA=new Ball(Math.random()*100),
+      ballB=new Ball(Math.random()*100);
+
+  ballA.x=canvas.width/2,
+  ballA.y=canvas.height/2;
+  canvas.addEventListener("mousemove",drawFrame,false);
+  drawFrame();
+
+  function drawFrame(){
+    context.clearRect(0,0,canvas.width,canvas.height);
+
+    ballB.x=mouse.x;
+    ballB.y=mouse.y;
+
+    var dx=ballB.x-ballA.x,
+        dy=ballB.y-ballA.y,
+        dist=Math.sqrt(dx*dx+dy*dy);
+
+    if(dist<ballA.radius+ballB.radius){
+      log.value="hit!";
+    }else{
+      log.value="";
+    }
+    ballA.draw(context);
+    ballB.draw(context);
+  }
+};
+</script>
+</body>
+</html>
