@@ -1,0 +1,81 @@
+<style type="text/css">
+	canvas{
+		background: #000;
+	}
+</style>
+<canvas width="400" height="400" id="canvas"></canvas>
+<script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/tree.js"></script>
+<script type="text/javascript">
+	window.onload=function(){
+		var canvas=document.getElementById("canvas"),
+				context=canvas.getContext("2d"),
+
+				trees=[],
+				numTrees=100,
+				fl=250,
+				vpX=canvas.width/2,
+				vpY=canvas.height/2,
+				floor=200,
+				vz=0,
+				friction=0.98;
+
+		for(var tree,i=0;i<numTrees;i++){
+			tree=new Tree();
+			tree.xpos=Math.random()*2000-1000;
+			tree.ypos=floor;
+			tree.zpos=Math.random()*10000;
+			trees.push(tree);
+		}
+
+		window.addEventListener("keydown",function(event){
+			if(event.keyCode===38){
+				vz-=1;
+
+			}else if(event.key===40){
+				vz+=1;
+			}
+		},false);
+
+
+		function move(tree){
+			tree.zpos+=vz;
+
+			if(tree.zpos<-fl){
+				tree.zpos+=10000;
+			}
+			if(tree.zpos>10000-fl){
+				tree.zpos-=10000;
+			}
+
+			var scale=fl/(fl+tree.zpos);
+			
+			tree.scaleX=tree.scaleY=scale;
+			tree.x=vpX+tree.xpos*scale;
+			tree.y=vpY+tree.ypos*scale;
+			tree.alpha=scale;
+		}
+
+		function draw(tree){
+			
+			tree.draw(context);
+			
+		}
+
+		function zSort(a,b){
+			return (b.zpos-a.zpos);
+		}
+
+		(function drawFrame(){
+			window.requestAnimationFrame(drawFrame,canvas);
+			context.clearRect(0,0,canvas.width,canvas.height);
+
+			trees.forEach(move);
+			vz*=friction;
+			trees.sort(zSort);
+			trees.forEach(draw);
+			
+			
+		}());
+	}
+</script>
