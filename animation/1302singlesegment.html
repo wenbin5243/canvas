@@ -1,0 +1,31 @@
+
+<canvas width="400" height="400" id="canvas"></canvas>
+<script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/segment.js"></script>
+<script type="text/javascript" src="js/slider.js"></script>
+<script type="text/javascript">
+	window.onload=function(){
+		var canvas=document.getElementById("canvas"),
+				context=canvas.getContext("2d"),
+				segment=new Segment(100,20),
+				slider=new Slider(-90,0,0);
+
+		segment.x=100;
+		segment.y=100;
+
+		slider.x=300;
+		slider.y=20;
+		slider.captureMouse(canvas);
+		slider.onchange=drawFrame;
+
+		function drawFrame(){
+			context.clearRect(0,0,canvas.width,canvas.height);
+
+			segment.rotation=slider.value*Math.PI/180;
+			segment.draw(context);
+			slider.draw(context);
+		}
+
+		drawFrame();				
+	}
+</script>
