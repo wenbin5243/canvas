@@ -1,0 +1,48 @@
+
+<canvas width="500" height="500" id="canvas"></canvas>
+<script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/segment.js"></script>
+<script type="text/javascript">
+	window.onload=function(){
+		var canvas=document.getElementById("canvas"),
+			context=canvas.getContext("2d"),
+			mouse=utils.captureMouse(canvas),
+			segment0=new Segment(100,20);
+			segment1=new Segment(100,20);
+
+		segment1.x=canvas.width/2;
+		segment1.y=canvas.height/2;
+
+		function reach(segment,xpos,ypos){
+			var dx=xpos-segment.x,
+				dy=ypos-segment.y;
+
+			segment.rotation=Math.atan2(dy,dx);
+
+			var w=segment.getPin().x-segment.x,
+				h=segment.getPin().y-segment.y;
+
+			return{
+				x:xpos-w,
+				y:ypos-h
+			};
+		}
+
+		function position(segmentA,segmentB){
+			segmentA.x=segmentB.getPin().x;
+			segmentA.y=segmentB.getPin().y;
+		}
+
+		(function drawFrame(){
+			window.requestAnimationFrame(drawFrame,canvas);
+			context.clearRect(0,0,canvas.width,canvas.height);
+
+			var target=reach(segment0,mouse.x,mouse.y);
+			reach(segment1,target.x,target.y);
+			position(segment0,segment1);
+
+			segment0.draw(context);
+			segment1.draw(context);
+		}());			
+	}
+</script>
