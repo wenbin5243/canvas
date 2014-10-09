@@ -4,7 +4,7 @@ function Triangle(a,b,c,color){
   this.pointC=c;
   this.color=(color===undefined)?"#ff0000":utils.parseColor(color);
   this.lineWidth=1;
-  this.alpha=1;
+  this.alpha=0.5;
 }
 
 Triangle.prototype.draw=function(context){
