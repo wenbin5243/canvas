@@ -6,15 +6,15 @@
 		var canvas=document.getElementById("canvas"),
 				context=canvas.getContext("2d"),
 				balls=[],
-				numBalls=8,
-				bounce=-1.0;
+				numBalls=15,
+				bounce=-1.0,
+				radius=20;
 
 		for(var radius,ball,i=0;i<numBalls;i++){
-			radius=Math.random()*20+15;
-			ball=new Ball(radius);
+			ball=new Ball(radius,Math.random()*0xffffff);
 			ball.mass=radius;
-			ball.x=i*100;
-			ball.y=i*50;
+			ball.x=Math.random()*canvas.width;
+			ball.y=Math.random()*canvas.height;
 			ball.vx=Math.random()*10-5;
 			ball.vy=Math.random()*10-5;
 			balls.push(ball);
@@ -43,15 +43,18 @@
 
 						vel0=rotate(ball0.vx,ball0.vy,sin,cos,true),
 
-						vel1=rotate(ball1.vx,ball1.vy,sin,cos,true),
+						vel1=rotate(ball1.vx,ball1.vy,sin,cos,true);
 
-						vxTotal=vel0.x-vel1.x;
+				var temp=vel0;
+				vel0=vel1;
+				vel1=temp;
 
-				vel0.x=((ball0.mass-ball1.mass)*vel0.x+2*ball1.mass*vel1.x)/(ball0.mass+ball1.mass);
-				vel1.x=vxTotal+vel0.x;
-				
-				pos0.x+=vel0.x;
-				pos1.x+=vel1.x;
+				var absV=Math.abs(vel0.x)+Math.abs(vel1.x),
+					overlap=(ball0.radius+ball1.radius)-Math.abs(pos0.x-pos1.x);
+
+				pos0.x+=vel0.x/absV*overlap;
+				pos1.x+=vel1.x/absV*overlap;
+
 
 				var pos0F=rotate(pos0.x,pos0.y,sin,cos,false),
 						pos1F=rotate(pos1.x,pos1.y,sin,cos,false);
@@ -62,7 +65,9 @@
 				ball0.y=ball0.y+pos0F.y;
 
 				var vel0F=rotate(vel0.x,vel0.y,sin,cos,false),
-						vel1F=rotate(vel1.x,vel1.y,sin,cos,false);
+					vel1F=rotate(vel1.x,vel1.y,sin,cos,false);
+
+
 
 				ball0.vx=vel0F.x;
 				ball0.vy=vel0F.y;

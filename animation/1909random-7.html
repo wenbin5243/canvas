@@ -1,0 +1,31 @@
+<canvas width="400" height="400" id="canvas"></canvas>
+<script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/ball.js"></script>
+<script type="text/javascript">
+	window.onload=function(){
+		var canvas=document.getElementById("canvas"),
+			context=canvas.getContext("2d"),
+			dots=[],
+			numDots=300,
+			iterationis=6;
+
+		while(numDots--){
+			for(var i=0,xpos=0;i<iterationis;i++){
+				xpos+=Math.random()*canvas.width;
+			}
+
+			for(var j=0,ypos=0;j<iterationis;j++){
+				ypos+=Math.random()*canvas.height;
+			}
+
+			var x=xpos/iterationis,
+				y=ypos/iterationis;
+
+			context.fillStyle="#000000";
+			context.beginPath();
+			context.arc(x,y,2,0,(Math.PI*2),true);
+			context.closePath();
+			context.fill();
+		}
+	}
+</script>

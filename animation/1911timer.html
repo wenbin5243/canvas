@@ -1,0 +1,23 @@
+<canvas width="400" height="400" id="canvas"></canvas>
+<script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/ball.js"></script>
+<script type="text/javascript">
+	window.onload=function(){
+		var canvas=document.getElementById("canvas"),
+			context=canvas.getContext("2d"),
+			ball=new Ball(),
+			fps=30;
+
+		ball.y=canvas.height/2;
+		ball.vx=5;
+
+		function drawFrame(){
+			context.clearRect(0,0,canvas.width,canvas.height);
+
+			ball.x+=ball.vx;
+			ball.draw(context);
+		}
+
+		window.setInterval(drawFrame,1000/fps);
+	}
+</script>
